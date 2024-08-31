@@ -37,5 +37,6 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
 catkin_install_python(PROGRAMS 
   scripts/spice_up_action_server.py
+  scripts/spice_up_action_client.py
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/spice_up_coordinator
 )
