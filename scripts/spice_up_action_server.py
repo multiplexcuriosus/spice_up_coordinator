@@ -12,17 +12,60 @@ from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import Image, CameraInfo
 
-
-from spice_up_coordinator.action._SpiceUpBottlePick import SpiceUpBottlePick,SpiceUpBottlePickResponse
+from spice_up_coordinator.msg import SpiceUpBottlePickAction,SpiceUpBottlePickActionResult
 from spice_up_coordinator.srv._SpiceName import SpiceName, SpiceNameRequest
-from spice_up_coordinator.srv._IDXAcquisition import IDXAcquisition,IDXAquisitionRequest
+from spice_up_coordinator.srv._IDXAcquisition import IDXAcquisition,IDXAcquisitionRequest
 
 class spiceUpCoordinator:
     def __init__(self):
         rospy.init_node('spice_up_action_server')
 
         self.load_params()
+        
+        # Start action service
+        self.action_server = actionlib.SimpleActionServer("spice_up_action_server", SpiceUpBottlePickAction, execute_cb=self.execute_cb, auto_start = False)
+        self.action_server.start()
 
+        print("[spiceUpCoordinator] : Waiting for spice_name_server...")
+        rospy.wait_for_service('spice_name_server')
+        
+        print("[spiceUpCoordinator] : Waiting for idx_finder_server...")
+        rospy.wait_for_service('idx_finder_server')
+
+        rospy.loginfo("[spiceUpCoordinator] : "+str("Initialized"))
+        
+
+    def execute_cb(self, goal): # Goal of type: SpiceUpBottlePickGoal
+        
+        # publish info to the console for the user
+        rospy.loginfo("[spiceUpCoordinator] : Received goal")
+        
+        result = SpiceUpBottlePickActionResult()
+        result.ee_pickup_target = PoseStamped
+        result.ee_dropoff_target = self.p_first_drop_off
+
+        if goal.activation:       
+
+            # Send request for color_profile to color_profile_server
+            spice_name_request = SpiceNameRequest()
+            spice_name_service_handle = rospy.ServiceProxy('spice_name_server', SpiceName)
+            spice_name_service_response = spice_name_service_handle(spice_name_request)
+
+            target_spice = spice_name_service_response.spice_name
+
+            # Send request for target spice position idx to idx_finder_server
+            idx_request = IDXAcquisitionRequest()
+            idx_request.target_spice = target_spice
+            idx_acquisition_service_handle = rospy.ServiceProxy('idx_finder_server', IDXAcquisition)
+            idx_acquisition_service_response = idx_acquisition_service_handle(idx_request)
+
+            target_idx = idx_acquisition_service_response.idx
+
+            result.ee_pickup_target = self.poses[target_idx]
+
+            return result
+    
+    def load_params(self):
         self.pick_up_pose = None
         self.place_pose = None
 
@@ -41,51 +84,7 @@ class spiceUpCoordinator:
 
         self.p_first_drop_off = PoseStamped
         self.p_second_drop_off = PoseStamped
-
         
-        # Start action service
-        self.action_server = actionlib.SimpleActionServer("spice_up_action_server", SpiceUpBottlePick, execute_cb=self.execute_cb, auto_start = False)
-        self.action_server.start()
-
-        print("[spiceUpCoordinator] : Waiting for spice_name_server...")
-        rospy.wait_for_service('spice_name_server')
-        
-        print("[spiceUpCoordinator] : Waiting for idx_finder_server...")
-        rospy.wait_for_service('idx_finder_server')
-
-        rospy.loginfo("[spiceUpCoordinator] : "+str("Initialized"))
-        
-
-    def execute_cb(self, goal):
-        
-        # publish info to the console for the user
-        rospy.loginfo("[spiceUpCoordinator] : Received goal")
-        
-        response = SpiceUpBottlePickResponse()
-        response.ee_pickup_target = PoseStamped
-        response.ee_dropoff_target = self.p_first_drop_off
-        response.debug = "FAIL"
-
-        if goal.activation:       
-
-            # Send request for color_profile to color_profile_server
-            spice_name_request = SpiceNameRequest()
-            spice_name_service_handle = rospy.ServiceProxy('spice_name_server', SpiceName)
-            spice_name_service_response = spice_name_service_handle(spice_name_request)
-
-            target_spice = spice_name_service_response.spice_name
-
-            # Send request for target spice position idx to idx_finder_server
-            idx_request = IDXAquisitionRequest()
-            idx_request.target_spice = target_spice
-            idx_acquisition_service_handle = rospy.ServiceProxy('idx_finder_server', IDXAcquisition)
-            idx_acquisition_service_response = idx_acquisition_service_handle(idx_request)
-
-            target_idx = idx_acquisition_service_response.idx
-
-            response.ee_pickup_target = self.poses[target_idx]
-
-            return response
         
 if __name__ == '__main__':
     rospy.init_node('spice_up_action_server')
