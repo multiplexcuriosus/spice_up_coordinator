@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   geometry_msgs
+  sensor_msgs
   message_generation
   actionlib
   actionlib_msgs
@@ -22,10 +23,11 @@ add_service_files(
    FILES
    SpiceName.srv
    IDXAcquisition.srv
+   ShelfPose.srv
 )
 
 generate_messages(
-  DEPENDENCIES std_msgs actionlib_msgs geometry_msgs
+  DEPENDENCIES std_msgs actionlib_msgs geometry_msgs sensor_msgs
 )
 
 catkin_package(
