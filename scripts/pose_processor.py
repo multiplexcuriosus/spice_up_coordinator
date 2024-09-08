@@ -182,8 +182,8 @@ class poseProcessor:
         EM3_r_E = EP3_r_E + z_off
 
         T_cb = np.array([[1,0,0,0], # fake base transform --> TODO Get from tf pub?
-                    [0,1,0,0.5],
-                    [0,0,1,0.5],
+                    [0,1,0,0.0],
+                    [0,0,1,0.0],
                     [0,0,0,1]])
         T_bc = np.linalg.inv(T_cb)
 
@@ -222,25 +222,16 @@ class poseProcessor:
         T_eg3 = self.compute_grasp_pose(T_em3,T_bc,T_ec)
 
         # Construct transforms from C to GRASP_i
-        T_gsim = np.array([[0, 0,1,0],
-                           [0,-1,0,0],
-                           [1, 0,0,0],
-                           [0, 0,0,1]])
+        T_gsim = np.array([[1, 0, 0,0],
+                           [0,-1, 0,0],
+                           [0, 0,-1,0],
+                           [0, 0, 0,1]])
         
-        T_correction = np.array([[0,0,-1,0],
-                                 [0,1, 0,0],
-                                 [1,0, 0,0],
-                                 [0,0, 0,1]])
-        
-        T_please = np.array([[1, 0,0,0],
-                             [0, 0,1,0],
-                             [0,-1,0,0],
-                             [0, 0,0,1]])
 
-        T_cg0 = T_ce @ T_eg0 # @ T_gsim @ T_correction
-        T_cg1 = T_ce @ T_eg1 #@ T_gsim @ T_correction
-        T_cg2 = T_ce @ T_eg2 #@ T_gsim @ T_correction
-        T_cg3 = T_ce @ T_eg3 #@ T_gsim @ T_correction
+        T_cg0 = T_ce @ T_eg0 @ T_gsim #@ T_correction
+        T_cg1 = T_ce @ T_eg1 @ T_gsim #@ T_correction
+        T_cg2 = T_ce @ T_eg2 @ T_gsim #@ T_correction
+        T_cg3 = T_ce @ T_eg3 @ T_gsim #@ T_correction
 
         return T_cg0,T_cg1,T_cg2,T_cg3
     

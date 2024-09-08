@@ -142,8 +142,8 @@ class spiceUpCoordinator:
             print("[spiceUpCoordinator] : Received target spice IDX: "+str(target_idx))
             
             # Visualization
-            #pose_visualized_msg = self.cv2_to_ros(self.pp.get_specific_viz(target_idx,self.drop_off_index))
-            pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img_all)
+            pose_visualized_msg = self.cv2_to_ros(self.pp.get_specific_viz(target_idx,self.drop_off_index))
+            #pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img_all)
             
             #pose_visualized_msg.header.stamp = rospy.Time.now()
             self.pose_debug_pub.publish(pose_visualized_msg)
