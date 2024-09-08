@@ -37,7 +37,7 @@ class spiceUpCoordinator:
         
         # Setup publishers
         self.shutdown_pub = rospy.Publisher("/shutdown_spice_up",Bool)
-        self.pose_debug_pub = rospy.Publisher("debug_pose", Image, queue_size=1)
+        self.pose_debug_pub = rospy.Publisher("/debug_pose", Image, queue_size=1)
 
         # Start action service
         self.action_server = actionlib.SimpleActionServer("spice_up_action_server", SpiceUpBottlePickAction, execute_cb=self.execute_cb, auto_start = False)
@@ -101,29 +101,25 @@ class spiceUpCoordinator:
         result.ee_dropoff_target = PoseStamped()
 
         if goal.activation:       
-            
-            # Send request for shelf pose to pose_est_server
-            pose_request = ShelfPoseRequest()
-            cv_color = self.last_image_color
-            cv_depth = self.last_image_depth
-            color_msg = self.last_image_color_msg
-            #depth_msg = self.cv2_to_ros(np.array(cv_depth,dtype="uint8"))
-            depth_msg = self.last_image_depth_msg
+            if self.drop_off_index == 0:
+                # Send request for shelf pose to pose_est_server
+                pose_request = ShelfPoseRequest()
+                cv_color = self.last_image_color
+                cv_depth = self.last_image_depth
+                self.color_msg = self.last_image_color_msg
+                #depth_msg = self.cv2_to_ros(np.array(cv_depth,dtype="uint8"))
+                depth_msg = self.last_image_depth_msg
 
-            pose_request.color_frame = color_msg
-            pose_request.depth_frame = depth_msg
-            pose_service_handle = rospy.ServiceProxy('pose_est_server', ShelfPose)
-            print("[spiceUpCoordinator] : Requesting shelf pose")
-            pose_service_response = pose_service_handle(pose_request)
-            T_ce_msg = pose_service_response.T_ce
-            mask_msg = pose_service_response.mask
-            print("[spiceUpCoordinator] : Received shelf pose: "+str(T_ce_msg))
-            self.pp = poseProcessor(T_ce_msg,self.K,cv_color)
-
-            # Visualization
-            pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img)
-            #pose_visualized_msg.header.stamp = rospy.Time.now()
-            self.pose_debug_pub.publish(pose_visualized_msg)
+                pose_request.color_frame = self.color_msg
+                pose_request.depth_frame = depth_msg
+                pose_service_handle = rospy.ServiceProxy('pose_est_server', ShelfPose)
+                print("[spiceUpCoordinator] : Requesting shelf pose")
+                pose_service_response = pose_service_handle(pose_request)
+                T_ce_msg = pose_service_response.T_ce
+                self.mask_msg = pose_service_response.mask
+                self.mask_has_five_contours = pose_service_response.has_five_contours
+                print("[spiceUpCoordinator] : Received shelf pose: "+str(T_ce_msg))
+                self.pp = poseProcessor(T_ce_msg,self.K,cv_color)
 
             # Send request for color_profile to color_profile_server
             spice_name_request = SpiceNameRequest()
@@ -136,15 +132,22 @@ class spiceUpCoordinator:
             # Send request for target spice position idx to idx_finder_server
             idx_request = IDXAcquisitionRequest()
             idx_request.target_spice = target_spice
-            idx_request.mask = mask_msg
-            idx_request.color_frame = color_msg
+            idx_request.mask = self.mask_msg
+            idx_request.color_frame = self.color_msg
+            idx_request.has_five_contours = self.mask_has_five_contours
             idx_acquisition_service_handle = rospy.ServiceProxy('idx_finder_server', IDXAcquisition)
             print("[spiceUpCoordinator] : Requesting target spice IDX")
             idx_acquisition_service_response = idx_acquisition_service_handle(idx_request)
-
             target_idx = idx_acquisition_service_response.idx
             print("[spiceUpCoordinator] : Received target spice IDX: "+str(target_idx))
             
+            # Visualization
+            #pose_visualized_msg = self.cv2_to_ros(self.pp.get_specific_viz(target_idx,self.drop_off_index))
+            pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img_all)
+            
+            #pose_visualized_msg.header.stamp = rospy.Time.now()
+            self.pose_debug_pub.publish(pose_visualized_msg)
+
             # Fill result
             result.ee_pickup_target = self.pp.grasp_msg_dict[target_idx]
             result.ee_dropoff_target = self.pp.drop_off_msg_dict[self.drop_off_index]
@@ -152,13 +155,14 @@ class spiceUpCoordinator:
             self.action_server.set_succeeded(result)
 
             # Shutdown
-            print("[spiceUpCoordinator] : Sending shutdown request")
-            shutdown_msg = Bool()
-            shutdown_msg.data = True
-            self.shutdown_pub.publish(shutdown_msg)
+            if self.drop_off_index == 2:
+                print("[spiceUpCoordinator] : Sending shutdown request")
+                shutdown_msg = Bool()
+                shutdown_msg.data = True
+                self.shutdown_pub.publish(shutdown_msg)
 
-            print("[spiceUpCoordinator] : Shutting down")
-            rospy.signal_shutdown("Job done")
+                print("[spiceUpCoordinator] : Shutting down")
+                rospy.signal_shutdown("Job done")
         
     def ros_to_cv2(self, frame: Image, desired_encoding="bgr8"):
         return self._bridge.imgmsg_to_cv2(frame, desired_encoding=desired_encoding)
@@ -173,6 +177,9 @@ class spiceUpCoordinator:
         self.K = self.get_intrinsics()
 
         self.drop_off_index = 0
+
+        self.mask_msg = None
+        self.color_msg = None
 
         self._bridge = CvBridge()
 

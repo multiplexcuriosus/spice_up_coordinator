@@ -30,20 +30,20 @@ class poseProcessor:
         T_es[0:3,3] = np.array([self.shelf_depth/2,self.shelf_height/2,self.shelf_width/2])
         T_es[3,3] = 1
 
-        T_cs = self.T_ce @ T_es
+        self.T_cs = self.T_ce @ T_es
 
-        T_cdo0,T_cdo1 = self.get_drop_off_poses()
-        T_cg0,T_cg1,T_cg2,T_cg3, = self.get_grasp_poses()
+        self.T_cdo0,self.T_cdo1 = self.get_drop_off_poses()
+        self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3, = self.get_grasp_poses()
 
 
         # Create pose msgs
-        T_cg0_msg = self.create_pose_msg(T_cg0)
-        T_cg1_msg = self.create_pose_msg(T_cg1)
-        T_cg2_msg = self.create_pose_msg(T_cg2)
-        T_cg3_msg = self.create_pose_msg(T_cg3)
+        T_cg0_msg = self.create_pose_msg(self.T_cg0)
+        T_cg1_msg = self.create_pose_msg(self.T_cg1)
+        T_cg2_msg = self.create_pose_msg(self.T_cg2)
+        T_cg3_msg = self.create_pose_msg(self.T_cg3)
         
-        T_cdo0_msg = self.create_pose_msg(T_cdo0)
-        T_cdo1_msg = self.create_pose_msg(T_cdo1)
+        T_cdo0_msg = self.create_pose_msg(self.T_cdo0)
+        T_cdo1_msg = self.create_pose_msg(self.T_cdo1)
 
         self.grasp_msg_dict = {
             0: T_cg0_msg,
@@ -57,8 +57,12 @@ class poseProcessor:
             1: T_cdo1_msg
         }
 
-        # Visualize
-        self.pose_visualized_img = self.get_viz_img(color_frame,T_cs,self.bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1)
+        # Visualizes
+        self.color_frame = color_frame
+        self.pose_visualized_img_all = self.get_viz_img_all(color_frame,self.T_cs,self.bbox,self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3,self.T_cdo0,self.T_cdo1)
+
+    def get_specific_viz(self,gidx,didx):
+        return self.get_viz_img_specific(self.color_frame,self.T_cs,self.bbox,self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3,self.T_cdo0,self.T_cdo1,gidx,didx)
 
     def read_pose_msg(self,pose_msg):
 
@@ -78,7 +82,6 @@ class poseProcessor:
 
         return T
 
-
     def create_pose_msg(self,T):
         pose_mat = T.reshape(4, 4)
         pose_msg = PoseStamped()
@@ -94,8 +97,6 @@ class poseProcessor:
         pose_msg.pose.orientation.w = quat[3]
         return pose_msg
     
-
-
     def load_mesh(self, mesh_file):
         mesh = trimesh.load(mesh_file, force="mesh")
         mesh_props = dict()
@@ -105,7 +106,6 @@ class poseProcessor:
         mesh_props["bbox"] = bbox
         mesh_props["extents"] = extents
         return mesh, mesh_props
-
 
     def get_drop_off_poses(self):
 
@@ -185,6 +185,7 @@ class poseProcessor:
                     [0,1,0,0.5],
                     [0,0,1,0.5],
                     [0,0,0,1]])
+        T_bc = np.linalg.inv(T_cb)
 
         # Construct transforms from E t0 m0,m1,m2,m3 (bottles middle points))
         T_em0 = np.zeros((4,4))
@@ -208,31 +209,41 @@ class poseProcessor:
         T_em3[3,3] = 1
 
         # Construct pick up grasp poses
+        '''
         T_eg0 = T_em0
         T_eg1 = T_em1
         T_eg2 = T_em2
         T_eg3 = T_em3
+        '''
         
-        
-        #T_eg0 = self.compute_grasp_pose(T_em0,T_bc,T_ec)
-        #T_eg1 = self.compute_grasp_pose(T_em1,T_bc,T_ec)
-        #T_eg2 = self.compute_grasp_pose(T_em2,T_bc,T_ec)
-        #T_eg3 = self.compute_grasp_pose(T_em3,T_bc,T_ec)
+        T_eg0 = self.compute_grasp_pose(T_em0,T_bc,T_ec)
+        T_eg1 = self.compute_grasp_pose(T_em1,T_bc,T_ec)
+        T_eg2 = self.compute_grasp_pose(T_em2,T_bc,T_ec)
+        T_eg3 = self.compute_grasp_pose(T_em3,T_bc,T_ec)
 
         # Construct transforms from C to GRASP_i
-        T_gsim = np.array([[0,0,1,0],
-                        [0,-1,0,0],
-                        [1,0,1,0],
-                        [0,0,0,1]])
+        T_gsim = np.array([[0, 0,1,0],
+                           [0,-1,0,0],
+                           [1, 0,0,0],
+                           [0, 0,0,1]])
+        
+        T_correction = np.array([[0,0,-1,0],
+                                 [0,1, 0,0],
+                                 [1,0, 0,0],
+                                 [0,0, 0,1]])
+        
+        T_please = np.array([[1, 0,0,0],
+                             [0, 0,1,0],
+                             [0,-1,0,0],
+                             [0, 0,0,1]])
 
-        T_sim = T_ce @ T_eg0 
-        T_cg1 = T_ce @ T_eg1
-        T_cg2 = T_ce @ T_eg2
-        T_cg3 = T_ce @ T_eg3
+        T_cg0 = T_ce @ T_eg0 # @ T_gsim @ T_correction
+        T_cg1 = T_ce @ T_eg1 #@ T_gsim @ T_correction
+        T_cg2 = T_ce @ T_eg2 #@ T_gsim @ T_correction
+        T_cg3 = T_ce @ T_eg3 #@ T_gsim @ T_correction
 
-        return T_sim,T_cg1,T_cg2,T_cg3
+        return T_cg0,T_cg1,T_cg2,T_cg3
     
-
     def project_3d_to_2d(self,pt,K,ob_in_cam):
         pt = pt.reshape(4,1)
         projected = K @ ((ob_in_cam@pt)[:3,:])
@@ -240,7 +251,6 @@ class poseProcessor:
         projected = projected/projected[2]
         return projected.reshape(-1)[:2].round().astype(int)
 
-    
     def draw_posed_3d_box(self,K, img, ob_in_cam, bbox, line_color=(0,255,0), linewidth=2):
         '''Revised from 6pack dataset/inference_dataset_nocs.py::projection
         @bbox: (2,3) min/max
@@ -304,7 +314,6 @@ class poseProcessor:
             tmp = cv2.cvtColor(tmp,cv2.COLOR_BGR2RGB)
         return tmp
 
-
     def to_homo(self,pts):
         '''
         @pts: (N,3 or 2) will homogeneliaze the last dimension
@@ -321,8 +330,7 @@ class poseProcessor:
         img = cv2.line(img, uv[0].tolist(), uv[1].tolist(), color=line_color, thickness=linewidth, lineType=cv2.LINE_AA)
         return img
 
-    def get_viz_img(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1):
-        
+    def get_viz_img_all(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1):
         
         # Draw bbox and T_CA coord axes
         pose_visualized = self.draw_posed_3d_box(self.K, img=color, ob_in_cam=T_cs, bbox=bbox) # 
@@ -338,7 +346,35 @@ class poseProcessor:
         pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo0,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
         pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo1,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
 
+        return pose_visualized
 
+    def get_viz_img_specific(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1,target_spice_loc_idx,target_dropoff_idx):
+        
+        # Draw bbox and T_CA coord axes
+        pose_visualized = self.draw_posed_3d_box(self.K, img=color, ob_in_cam=T_cs, bbox=bbox) # 
+        #pose_visualized = self.draw_xyz_axis(color,ob_in_cam=T_cs,scale=0.1,K=self.K,thickness=3, transparency=0,is_input_rgb=True) 
+        
+        # Draw grasp poses 
+        if target_spice_loc_idx == 0:
+            pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg0,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        elif target_spice_loc_idx == 1:
+            pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg1,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        elif target_spice_loc_idx == 2:
+            pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg2,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        elif target_spice_loc_idx == 3:
+            pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg3,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        else:
+            print("ERROR: invalid target_spice_loc_idx")
+            return None
+
+        # Draw drop off poses
+        if target_dropoff_idx == 0:
+            pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo0,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        elif target_dropoff_idx == 1:
+            pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo1,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        else:
+            print("ERROR: invalid target_dropoff_idx")
+            return None
 
         return pose_visualized
 
