@@ -1,0 +1,6 @@
+<launch>
+    
+    <node pkg="spice_up_coordinator" type="spice_up_action_server.py" name="spice_up_action_server" output="screen"/>
+    <node pkg="idx_finder" type="idx_finder_server.py" name="idx_finder_server" output="screen"/>
+
+</launch>

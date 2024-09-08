@@ -1,30 +1,42 @@
 import numpy as np
+import rospy
+import trimesh
 import cv2
+from geometry_msgs.msg import PoseStamped
+from scipy.spatial.transform import Rotation
+from tf.transformations import quaternion_matrix
 
-class CoordinateFrameConverter:
-    def __init__(self,T_cs,mesh_props,K) -> None:
-
-        self.bbox = mesh_props["bbox"]
-        self.extents = mesh_props["extents"]
-        self._K = K
-
-        # Get shelf corners in C frame
-        bounding_box =self.bbox
-        corners_S = self.get_box_corners(bounding_box)
-        corners_C = []
-        for p_S in corners_S:
-            p_C =(T_cs @ p_S)[0:3]
-            corners_C.append(p_C)
-
-        # Get transform from C-frame to E-frame
-        self.T_ce = self.get_T_ce(corners_C)
+class poseProcessor:
+    def __init__(self,T_ce_msg,K,color_frame) -> None:
+        
+        self.K = K
+        self.T_ce = self.read_pose_msg(T_ce_msg)
 
 
-        #T_cdo0,T_cdo1 = self.get_drop_off_poses()
-        #T_cg0,T_cg1,T_cg2,T_cg3, = self.get_grasp_poses()
+        # Get mesh props
+        mesh_file_path = "/home/jau/ros/catkin_ws/src/spice_up_coordinator/data/kallax_with_backplate_meters.obj"
+        self.mesh, self.mesh_props = self.load_mesh(mesh_file_path)
+        self.bbox = self.mesh_props["bbox"]
+        self.extents = self.mesh_props["extents"]
+
+        # Get shel h,w,d
+        self.shelf_depth = self.extents[0]
+        self.shelf_height = self.extents[1] # TODO: CHECK IF STILL TRUE FOR SMALLER KALLAX !! 
+        self.shelf_width = self.extents[2] # TODO: CHECK IF STILL TRUE FOR SMALLER KALLAX !! 
+        
+        # Create T_es -> T_cs for viz (not original T_cs, but the one rotationally aligned with E-frame)
+        T_es = np.zeros((4,4))
+        T_es[0:3,0:3] = np.identity(3)
+        T_es[0:3,3] = np.array([self.shelf_depth/2,self.shelf_height/2,self.shelf_width/2])
+        T_es[3,3] = 1
+
+        T_cs = self.T_ce @ T_es
+
+        T_cdo0,T_cdo1 = self.get_drop_off_poses()
+        T_cg0,T_cg1,T_cg2,T_cg3, = self.get_grasp_poses()
+
 
         # Create pose msgs
-        '''
         T_cg0_msg = self.create_pose_msg(T_cg0)
         T_cg1_msg = self.create_pose_msg(T_cg1)
         T_cg2_msg = self.create_pose_msg(T_cg2)
@@ -32,28 +44,86 @@ class CoordinateFrameConverter:
         
         T_cdo0_msg = self.create_pose_msg(T_cdo0)
         T_cdo1_msg = self.create_pose_msg(T_cdo1)
-        '''
+
+        self.grasp_msg_dict = {
+            0: T_cg0_msg,
+            1: T_cg1_msg,
+            2: T_cg2_msg,
+            3: T_cg3_msg
+        }
+
+        self.drop_off_msg_dict = {
+            0: T_cdo0_msg,
+            1: T_cdo1_msg
+        }
+
+        # Visualize
+        self.pose_visualized_img = self.get_viz_img(color_frame,T_cs,self.bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1)
+
+    def read_pose_msg(self,pose_msg):
+
+        T = np.zeros((4,4))
+        T[0,3] = pose_msg.pose.position.x
+        T[1,3] = pose_msg.pose.position.y
+        T[2,3] = pose_msg.pose.position.z
+        
+        quat = [0,0,0,0]
+        quat[0] = pose_msg.pose.orientation.x 
+        quat[1] = pose_msg.pose.orientation.y
+        quat[2] = pose_msg.pose.orientation.z 
+        quat[3] = pose_msg.pose.orientation.w
+
+        T[0:3,0:3] = quaternion_matrix(quat)[0:3,0:3] #https://github.com/ros/geometry/blob/hydro-devel/tf/src/tf/transformations.py line 1174
+        T[3,3] = 1
+
+        return T
+
+
+    def create_pose_msg(self,T):
+        pose_mat = T.reshape(4, 4)
+        pose_msg = PoseStamped()
+        pose_msg.header.stamp = rospy.Time.now()
+        #pose_msg.header.frame_id = self.color_frame_id
+        pose_msg.pose.position.x = pose_mat[0, 3]
+        pose_msg.pose.position.y = pose_mat[1, 3]
+        pose_msg.pose.position.z = pose_mat[2, 3]
+        quat = Rotation.from_matrix(pose_mat[:3, :3]).as_quat()
+        pose_msg.pose.orientation.x = quat[0]
+        pose_msg.pose.orientation.y = quat[1]
+        pose_msg.pose.orientation.z = quat[2]
+        pose_msg.pose.orientation.w = quat[3]
+        return pose_msg
+    
+
+
+    def load_mesh(self, mesh_file):
+        mesh = trimesh.load(mesh_file, force="mesh")
+        mesh_props = dict()
+        to_origin, extents = trimesh.bounds.oriented_bounds(mesh)
+        bbox = np.stack([-extents / 2, extents / 2], axis=0).reshape(2, 3)
+        mesh_props["to_origin"] = to_origin
+        mesh_props["bbox"] = bbox
+        mesh_props["extents"] = extents
+        return mesh, mesh_props
+
 
     def get_drop_off_poses(self):
 
         T_ce = self.T_ce
         
         #Create drop off pose DO0,DO1 ->TODO: drop off position bottom part of bottle or com?
-        shelf_depth = self.extents[0]
-        shelf_height = self.extents[1] # TODO: CHECK IF STILL TRUE FOR SMALLER KALLAX !! 
-        shelf_width = self.extents[2] # TODO: CHECK IF STILL TRUE FOR SMALLER KALLAX !! 
         
         # Create rotation matrix from C frame to standard frame used in alma simulator (?)
-        R_es = np.array([[0,0,1],
+        R_esim = np.array([[0,0,1],
                          [0,-1,0],
                          [1,0,0]])
 
         R_ce = T_ce[0:3,0:3]
-        R_do = R_ce @ R_es
+        R_do = R_ce @ R_esim
 
 
-        DO0_E = np.array([shelf_depth/2,shelf_width*0.75,shelf_height,1.0])
-        DO1_E = np.array([shelf_depth/2,shelf_width*0.25,shelf_height,1.0])
+        DO0_E = np.array([self.shelf_depth/2,self.shelf_width*0.75,self.shelf_height,1.0])
+        DO1_E = np.array([self.shelf_depth/2,self.shelf_width*0.25,self.shelf_height,1.0])
         
         T_cdo0 = np.zeros((4,4))
         T_cdo0[0:3,0:3] = R_do
@@ -66,95 +136,7 @@ class CoordinateFrameConverter:
         T_cdo1[3,3] = 1
 
         return T_cdo0,T_cdo1
-
-    def get_box_corners(self,bbox):
-        min_xyz = bbox.min(axis=0)
-        xmin, ymin, zmin = min_xyz
-        max_xyz = bbox.max(axis=0)
-        xmax, ymax, zmax = max_xyz
-
-        box_corners_S = []
-
-        for x in [xmin,xmax]:
-            for y in [ymin,ymax]:
-                for z in [zmin,zmax]:
-                    p_S = np.array([x,y,z,1])
-                    box_corners_S.append(p_S)
-        
-        return box_corners_S
-
-    def get_L(self,corners_C):
-        return sorted(corners_C,key=lambda pt: pt[0])[0:4]
-
-    def get_R(self,corners_C):
-        return sorted(corners_C,key=lambda pt: -pt[0])[0:4]
-
-
-
-    def get_T_ce(self,corners_C):
-        # ID CORNERS ##################################################
-
-        # Get left corners
-        L_C = self.get_L(corners_C)
-
-        # Id H,J by distance to camera
-        L_C = sorted(L_C,key=lambda vec: np.linalg.norm(vec))
-        H = L_C[0]
-        J = L_C[3]
-
-        # Id A,D by distance to H,J
-        L1 = L_C[1]
-        L2 = L_C[2]
-
-        d_L1H = np.linalg.norm(H-L1)
-        d_L2H = np.linalg.norm(H-L2)
-
-        if d_L1H < d_L2H:
-            A = L1
-            D = L2
-        else:
-            A = L2
-            D = L1
-
-        # Get right corners
-        R_C = self.get_R(corners_C)
-
-        # Id G,F by distance to camera
-        R_C = sorted(R_C,key=lambda vec: np.linalg.norm(vec))
-        G = R_C[0]
-        F = R_C[3]
-
-        # Id I,E by distance to G,G
-        R1 = R_C[1]
-        R2 = R_C[2]
-
-        d_R1G = np.linalg.norm(G-R1)
-        d_R2G = np.linalg.norm(G-R2)
-        if d_R1G < d_R2G:
-            I = R1
-            E = R2
-        else:
-            I = R2
-            E = R1
-
-
-        x = F - E
-        y = D - E
-        z = G - E
-
-        xn = x / np.linalg.norm(x)
-        yn = y / np.linalg.norm(y)
-        zn = z / np.linalg.norm(z)
-
-        T_ce = np.zeros((4,4))
-        T_ce[0:3,0] = xn
-        T_ce[0:3,1] = yn
-        T_ce[0:3,2] = zn
-        T_ce[0:3,3] = E
-        T_ce[3,3] = 1
-
-        return T_ce
-
+    
     def compute_grasp_pose(self,T_em,T_bc,T_ec):
         T_cb = np.linalg.inv(T_bc)
         T_eb = T_ec @ T_cb
@@ -203,7 +185,6 @@ class CoordinateFrameConverter:
                     [0,1,0,0.5],
                     [0,0,1,0.5],
                     [0,0,0,1]])
-        T_bc = np.linalg.inv(T_cb)
 
         # Construct transforms from E t0 m0,m1,m2,m3 (bottles middle points))
         T_em0 = np.zeros((4,4))
@@ -340,23 +321,24 @@ class CoordinateFrameConverter:
         img = cv2.line(img, uv[0].tolist(), uv[1].tolist(), color=line_color, thickness=linewidth, lineType=cv2.LINE_AA)
         return img
 
-    def get_viz_msg(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1):
+    def get_viz_img(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1):
         
         
         # Draw bbox and T_CA coord axes
-        pose_visualized = self.draw_posed_3d_box(self._K, img=color, ob_in_cam=T_cs, bbox=bbox) # 
-        pose_visualized = self.draw_xyz_axis(color,ob_in_cam=T_cs,scale=0.1,K=self._K,thickness=3, transparency=0,is_input_rgb=True) 
+        pose_visualized = self.draw_posed_3d_box(self.K, img=color, ob_in_cam=T_cs, bbox=bbox) # 
+        pose_visualized = self.draw_xyz_axis(color,ob_in_cam=T_cs,scale=0.1,K=self.K,thickness=3, transparency=0,is_input_rgb=True) 
         
         # Draw grasp poses 
-        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg0,scale=0.05,K=self._K,thickness=2,transparency=0,is_input_rgb=True)
-        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg1,scale=0.05,K=self._K,thickness=2,transparency=0,is_input_rgb=True)
-        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg2,scale=0.05,K=self._K,thickness=2,transparency=0,is_input_rgb=True)
-        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg3,scale=0.05,K=self._K,thickness=2,transparency=0,is_input_rgb=True)
+        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg0,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg1,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg2,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cg3,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
 
         # Draw drop off poses
-        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo0,scale=0.05,K=self._K,thickness=2,transparency=0,is_input_rgb=True)
-        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo1,scale=0.05,K=self._K,thickness=2,transparency=0,is_input_rgb=True)
+        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo0,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
+        pose_visualized = self.draw_xyz_axis(pose_visualized,ob_in_cam=T_cdo1,scale=0.05,K=self.K,thickness=2,transparency=0,is_input_rgb=True)
 
 
 
         return pose_visualized
+

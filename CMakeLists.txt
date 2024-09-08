@@ -4,6 +4,7 @@ project(spice_up_coordinator)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  std_srvs
   geometry_msgs
   sensor_msgs
   message_generation
