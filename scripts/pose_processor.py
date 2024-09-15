@@ -12,6 +12,9 @@ class poseProcessor:
         self.K = K
         self.T_ce = self.read_pose_msg(T_ce_msg)
 
+        self.simple_grasp = False
+        self.correct_rot = False
+
 
         # Get mesh props
         mesh_file_path = "/home/jau/ros/catkin_ws/src/spice_up_coordinator/data/kallax_with_backplate_meters.obj"
@@ -163,6 +166,16 @@ class poseProcessor:
         T_eg[0:3,3] = M_E
         T_eg[3,3] = 1
 
+        if False:
+            print("M_e: "+str(M_E))
+            print("B_E: "+str(B_E))
+            print("BM_r_E: "+str(BM_r_E))
+            print("gamma_E: "+str(gamma_E))
+            print("normal_to_gammaG_in_ez_plane_E: "+str(normal_to_gammaG_in_ez_plane_E))
+
+
+
+
         return T_eg
 
     def get_grasp_poses(self):
@@ -182,9 +195,9 @@ class poseProcessor:
         EM3_r_E = EP3_r_E + z_off
 
         T_cb = np.array([[1,0,0,0], # fake base transform --> TODO Get from tf pub?
-                    [0,1,0,0.0],
-                    [0,0,1,0.0],
-                    [0,0,0,1]])
+                         [0,1,0,0],
+                         [0,0,1,0],
+                         [0,0,0,1]])
         T_bc = np.linalg.inv(T_cb)
 
         # Construct transforms from E t0 m0,m1,m2,m3 (bottles middle points))
@@ -209,29 +222,34 @@ class poseProcessor:
         T_em3[3,3] = 1
 
         # Construct pick up grasp poses
-        '''
-        T_eg0 = T_em0
-        T_eg1 = T_em1
-        T_eg2 = T_em2
-        T_eg3 = T_em3
-        '''
-        
-        T_eg0 = self.compute_grasp_pose(T_em0,T_bc,T_ec)
-        T_eg1 = self.compute_grasp_pose(T_em1,T_bc,T_ec)
-        T_eg2 = self.compute_grasp_pose(T_em2,T_bc,T_ec)
-        T_eg3 = self.compute_grasp_pose(T_em3,T_bc,T_ec)
+        if self.simple_grasp:
+            T_eg0 = T_em0
+            T_eg1 = T_em1
+            T_eg2 = T_em2
+            T_eg3 = T_em3
+        else:     
+            T_eg0 = self.compute_grasp_pose(T_em0,T_bc,T_ec)
+            T_eg1 = self.compute_grasp_pose(T_em1,T_bc,T_ec)
+            T_eg2 = self.compute_grasp_pose(T_em2,T_bc,T_ec)
+            T_eg3 = self.compute_grasp_pose(T_em3,T_bc,T_ec)
 
-        # Construct transforms from C to GRASP_i
-        T_gsim = np.array([[1, 0, 0,0],
-                           [0,-1, 0,0],
-                           [0, 0,-1,0],
-                           [0, 0, 0,1]])
-        
+        # Bring into camera frame
+        T_cg0 = T_ce @ T_eg0  
+        T_cg1 = T_ce @ T_eg1  
+        T_cg2 = T_ce @ T_eg2  
+        T_cg3 = T_ce @ T_eg3  
 
-        T_cg0 = T_ce @ T_eg0 @ T_gsim #@ T_correction
-        T_cg1 = T_ce @ T_eg1 @ T_gsim #@ T_correction
-        T_cg2 = T_ce @ T_eg2 @ T_gsim #@ T_correction
-        T_cg3 = T_ce @ T_eg3 @ T_gsim #@ T_correction
+        if self.correct_rot:
+            # Construct transforms from C to GRASP_i
+            T_gsim = np.array([[0, 0, 1,0],
+                               [0,-1, 0,0],
+                               [1, 0, 0,0],
+                               [0, 0, 0,1]])
+            
+            T_cg0 = T_cg0 @ T_gsim 
+            T_cg1 = T_cg1 @ T_gsim 
+            T_cg2 = T_cg2 @ T_gsim 
+            T_cg3 = T_cg3 @ T_gsim 
 
         return T_cg0,T_cg1,T_cg2,T_cg3
     

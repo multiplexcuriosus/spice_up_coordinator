@@ -140,30 +140,40 @@ class spiceUpCoordinator:
             idx_acquisition_service_response = idx_acquisition_service_handle(idx_request)
             target_idx = idx_acquisition_service_response.idx
             print("[spiceUpCoordinator] : Received target spice IDX: "+str(target_idx))
+            if target_idx == -1:
+                print("[spiceUpCoordinator] : IDX finder failed. Aborting action! ")
+                self.action_server.set_aborted(result)
+                self.shutdown("FAIL")
+            else:
+                # Fill result
+                result.ee_pickup_target = self.pp.grasp_msg_dict[target_idx]
+                result.ee_dropoff_target = self.pp.drop_off_msg_dict[self.drop_off_index]
+                self.drop_off_index += 1 # Next time use other drop off location
+                self.action_server.set_succeeded(result)
             
             # Visualization
-            pose_visualized_msg = self.cv2_to_ros(self.pp.get_specific_viz(target_idx,self.drop_off_index))
-            #pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img_all)
-            
-            #pose_visualized_msg.header.stamp = rospy.Time.now()
-            self.pose_debug_pub.publish(pose_visualized_msg)
-
-            # Fill result
-            result.ee_pickup_target = self.pp.grasp_msg_dict[target_idx]
-            result.ee_dropoff_target = self.pp.drop_off_msg_dict[self.drop_off_index]
-            self.drop_off_index += 1 # Next time use other drop off location
-            self.action_server.set_succeeded(result)
+            pose_viz_img = self.pp.get_specific_viz(target_idx,self.drop_off_index)
+            if pose_viz_img is not None:
+                pose_visualized_msg = self.cv2_to_ros(pose_viz_img)
+                #pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img_all)
+                
+                #pose_visualized_msg.header.stamp = rospy.Time.now()
+                self.pose_debug_pub.publish(pose_visualized_msg)
 
             # Shutdown
             if self.drop_off_index == 2:
-                print("[spiceUpCoordinator] : Sending shutdown request")
-                shutdown_msg = Bool()
-                shutdown_msg.data = True
-                self.shutdown_pub.publish(shutdown_msg)
+                self.shutdown("Job done")
 
-                print("[spiceUpCoordinator] : Shutting down")
-                rospy.signal_shutdown("Job done")
         
+    def shutdown(self,msg):
+        print("[spiceUpCoordinator] : Sending shutdown request")
+        shutdown_msg = Bool()
+        shutdown_msg.data = True
+        self.shutdown_pub.publish(shutdown_msg)
+
+        print("[spiceUpCoordinator] : Shutting down")
+        rospy.signal_shutdown(msg)
+
     def ros_to_cv2(self, frame: Image, desired_encoding="bgr8"):
         return self._bridge.imgmsg_to_cv2(frame, desired_encoding=desired_encoding)
 
