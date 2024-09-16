@@ -8,6 +8,9 @@ from cv_bridge import CvBridge, CvBridgeError
 import message_filters
 import actionlib
 
+
+import tf
+
 from geometry_msgs.msg import PoseStamped
 from std_msgs.msg import Float64MultiArray,Bool
 from sensor_msgs.msg import Image, CameraInfo
@@ -61,13 +64,13 @@ class spiceUpCoordinator:
 
 
     def get_intrinsics(self):
-        intrinsics_topic = "/camera/color/camera_info"
+        intrinsics_topic = "/dynaarm_REALSENSE/color/camera_info"
         try:
             data = rospy.wait_for_message(intrinsics_topic, CameraInfo, timeout=10.0)
             K = np.array(data.K).reshape(3, 3).astype(np.float64)
             return K
         except rospy.ROSException:
-            rospy.logwarn(f"[PoseDetectorNode]: Failed to get intrinsics from topic '{intrinsics_topic}', retrying...")
+            rospy.logwarn(f"[SpiceUpActionServer]: Failed to get intrinsics from topic '{intrinsics_topic}', retrying...")
             return self.get_intrinsics()
 
     def synch_col_image_callback(self, color_msg):
@@ -146,8 +149,26 @@ class spiceUpCoordinator:
                 self.shutdown("FAIL")
             else:
                 # Fill result
-                result.ee_pickup_target = self.pp.grasp_msg_dict[target_idx]
+                grasp_msg = self.pp.grasp_msg_dict[target_idx]
+                result.ee_pickup_target = grasp_msg
                 result.ee_dropoff_target = self.pp.drop_off_msg_dict[self.drop_off_index]
+
+                # Publish grasp pose
+                #grasp_pose = self.pp.grasp_dict[target_idx]
+                br = tf.TransformBroadcaster()
+                br.sendTransform((grasp_msg.pose.position.x, 
+                                  grasp_msg.pose.position.y, 
+                                  grasp_msg.pose.position.z),
+                                 (grasp_msg.pose.orientation.x,
+                                  grasp_msg.pose.orientation.y,
+                                  grasp_msg.pose.orientation.z,
+                                  grasp_msg.pose.orientation.w),
+                                 rospy.Time.now(),
+                                 "spice_up_grasp",
+                                 "dynaarm_REALSENSE_color_optical_frame")
+                print("[spiceUpCoordinator] : Published grasp tf")
+
+
                 self.drop_off_index += 1 # Next time use other drop off location
                 self.action_server.set_succeeded(result)
             
@@ -200,9 +221,13 @@ class spiceUpCoordinator:
         self.last_image_depth_msg = None
 
 
-
-        self.color_topic_name = "/camera/color/image_raw"
-        self.depth_topic_name = "/camera/aligned_depth_to_color/image_raw"
+        sim = False
+        if sim:
+            self.color_topic_name = "/camera/color/image_raw"
+            self.depth_topic_name = "/camera/aligned_depth_to_color/image_raw"
+        else:
+            self.color_topic_name = "/dynaarm_REALSENSE/color/image_raw"
+            self.depth_topic_name = "/dynaarm_REALSENSE/aligned_depth_to_color/image_raw"
         
         
 if __name__ == '__main__':

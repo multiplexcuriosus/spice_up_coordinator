@@ -12,12 +12,12 @@ class poseProcessor:
         self.K = K
         self.T_ce = self.read_pose_msg(T_ce_msg)
 
-        self.simple_grasp = False
-        self.correct_rot = False
+        self.simple_grasp = True
+        self.correct_rot = True
 
 
         # Get mesh props
-        mesh_file_path = "/home/jau/ros/catkin_ws/src/spice_up_coordinator/data/kallax_with_backplate_meters.obj"
+        mesh_file_path = "/home/carmen/ros/catkin_ws/src/spice_up_coordinator/data/kallax_with_backplate_meters.obj"
         self.mesh, self.mesh_props = self.load_mesh(mesh_file_path)
         self.bbox = self.mesh_props["bbox"]
         self.extents = self.mesh_props["extents"]
@@ -47,6 +47,13 @@ class poseProcessor:
         
         T_cdo0_msg = self.create_pose_msg(self.T_cdo0)
         T_cdo1_msg = self.create_pose_msg(self.T_cdo1)
+
+        self.grasp_dict = {
+            0: self.T_cg0,
+            1: self.T_cg1,
+            2: self.T_cg2,
+            3: self.T_cg3
+        }
 
         self.grasp_msg_dict = {
             0: T_cg0_msg,
@@ -89,7 +96,7 @@ class poseProcessor:
         pose_mat = T.reshape(4, 4)
         pose_msg = PoseStamped()
         pose_msg.header.stamp = rospy.Time.now()
-        #pose_msg.header.frame_id = self.color_frame_id
+        pose_msg.header.frame_id = "dynaarm_REALSENSE_color_optical_frame"
         pose_msg.pose.position.x = pose_mat[0, 3]
         pose_msg.pose.position.y = pose_mat[1, 3]
         pose_msg.pose.position.z = pose_mat[2, 3]
@@ -188,11 +195,11 @@ class poseProcessor:
         EP1_r_E = np.array([0.040,0.125,0.392,1.0])
         EP2_r_E = np.array([0.035,0.280,0.042,1.0])
         EP3_r_E = np.array([0.035,0.130,0.042,1.0])
-        z_off = np.array([0,0,0.03,0.0])
-        EM0_r_E = EP0_r_E + z_off
-        EM1_r_E = EP1_r_E + z_off
-        EM2_r_E = EP2_r_E + z_off
-        EM3_r_E = EP3_r_E + z_off
+        z_off = 0.03
+        EM0_r_E = EP0_r_E + np.array([0,0,z_off,0.0])
+        EM1_r_E = EP1_r_E + np.array([0,0,z_off,0.0])
+        EM2_r_E = EP2_r_E + np.array([0,0,z_off,0.0])
+        EM3_r_E = EP3_r_E + np.array([0,0,z_off,0.0])
 
         T_cb = np.array([[1,0,0,0], # fake base transform --> TODO Get from tf pub?
                          [0,1,0,0],
