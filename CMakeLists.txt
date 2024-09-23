@@ -22,9 +22,9 @@ add_action_files(
 
 add_service_files(
    FILES
-   SpiceName.srv
-   IDXAcquisition.srv
-   ShelfPose.srv
+   GetSpiceName.srv
+   FindIndex.srv
+   EstimatePose.srv
 )
 
 generate_messages(

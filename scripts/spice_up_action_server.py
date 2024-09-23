@@ -12,19 +12,22 @@ import actionlib
 import tf
 
 from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import Float64MultiArray,Bool
+from std_msgs.msg import Bool
 from sensor_msgs.msg import Image, CameraInfo
-from std_srvs.srv import SetBool,SetBoolRequest
 
 from pose_processor import poseProcessor
 
 from spice_up_coordinator.msg import SpiceUpBottlePickAction,SpiceUpBottlePickResult
-from spice_up_coordinator.srv._SpiceName import SpiceName, SpiceNameRequest
-from spice_up_coordinator.srv._IDXAcquisition import IDXAcquisition,IDXAcquisitionRequest
-from spice_up_coordinator.srv._ShelfPose import ShelfPose, ShelfPoseRequest,ShelfPoseResponse
+from spice_up_coordinator.srv._GetSpiceName import GetSpiceName, GetSpiceNameRequest
+from spice_up_coordinator.srv._FindIndex import FindIndex,FindIndexRequest
+from spice_up_coordinator.srv._EstimatePose import EstimatePose, EstimatePoseRequest
 
 class spiceUpCoordinator:
     def __init__(self):
+        '''
+        The spiceUpCoordinator coordinates the requests and responses between the index_finder_server, spice_name_server and pose_est_server during the spice-up-task.
+        A flow chart depecting the information flow can be found on the github repo TODO
+        '''
         rospy.init_node('spice_up_action_server')
 
         self.load_params()
@@ -33,7 +36,6 @@ class spiceUpCoordinator:
         color_img_sub = message_filters.Subscriber(self.color_topic_name,Image, queue_size=1)
         ts_col = message_filters.TimeSynchronizer([color_img_sub], 10)
         ts_col.registerCallback(self.synch_col_image_callback)
-        
         depth_img_sub = message_filters.Subscriber(self.depth_topic_name,Image, queue_size=1)
         ts_depth = message_filters.TimeSynchronizer([depth_img_sub], 10)
         ts_depth.registerCallback(self.synch_depth_image_callback)
@@ -63,40 +65,10 @@ class spiceUpCoordinator:
         
 
 
-    def get_intrinsics(self):
-        intrinsics_topic = "/dynaarm_REALSENSE/color/camera_info"
-        try:
-            data = rospy.wait_for_message(intrinsics_topic, CameraInfo, timeout=10.0)
-            K = np.array(data.K).reshape(3, 3).astype(np.float64)
-            return K
-        except rospy.ROSException:
-            rospy.logwarn(f"[SpiceUpActionServer]: Failed to get intrinsics from topic '{intrinsics_topic}', retrying...")
-            return self.get_intrinsics()
 
-    def synch_col_image_callback(self, color_msg):
-        try:
-            cv_color_img = self._bridge.imgmsg_to_cv2(color_msg,desired_encoding="bgr8")
-            self.last_image_color = cv_color_img
-            self.last_image_color_msg = color_msg
-
-        except CvBridgeError as e:
-            print(e)
-
-    
-    def synch_depth_image_callback(self, depth_msg):
-        try:
-            cv_depth_img = self._bridge.imgmsg_to_cv2(depth_msg,desired_encoding = "passthrough").astype(np.uint16).copy() / 1000.0
-            cv_depth_img[(cv_depth_img < 0.1)] = 0
-            self.last_image_depth = cv_depth_img
-            self.last_image_depth_msg = depth_msg
-
-        except CvBridgeError as e:
-            print(e)
-    
 
     def execute_cb(self, goal): # Goal of type: SpiceUpBottlePickGoal
         
-        # publish info to the console for the user
         print("[spiceUpCoordinator] : Received action goal")
         
         result = SpiceUpBottlePickResult()
@@ -104,57 +76,45 @@ class spiceUpCoordinator:
         result.ee_dropoff_target = PoseStamped()
 
         if goal.activation:       
-            if self.drop_off_index == 0:
-                # Send request for shelf pose to pose_est_server
-                pose_request = ShelfPoseRequest()
-                cv_color = self.last_image_color
-                cv_depth = self.last_image_depth
-                self.color_msg = self.last_image_color_msg
-                #depth_msg = self.cv2_to_ros(np.array(cv_depth,dtype="uint8"))
-                depth_msg = self.last_image_depth_msg
-
-                pose_request.color_frame = self.color_msg
-                pose_request.depth_frame = depth_msg
-                pose_service_handle = rospy.ServiceProxy('pose_est_server', ShelfPose)
+            # If this is the first action request: request pose and generate grasp and dropoff poses
+            if self.drop_off_index == 0: 
+                pose_request = EstimatePoseRequest(self.last_image_color_msg,self.last_image_depth_msg)
+                pose_service_handle = rospy.ServiceProxy('pose_est_server', EstimatePose)
                 print("[spiceUpCoordinator] : Requesting shelf pose")
                 pose_service_response = pose_service_handle(pose_request)
                 T_ce_msg = pose_service_response.T_ce
                 self.mask_msg = pose_service_response.mask
                 self.mask_has_five_contours = pose_service_response.has_five_contours
                 print("[spiceUpCoordinator] : Received shelf pose: "+str(T_ce_msg))
-                self.pp = poseProcessor(T_ce_msg,self.K,cv_color)
+                self.poseProcessor = poseProcessor(T_ce_msg,self.K,self.last_image_color)
+                print("[spiceUpCoordinator] : Generated grasp and dropoff poses")
 
-            # Send request for color_profile to color_profile_server
-            spice_name_request = SpiceNameRequest()
-            spice_name_service_handle = rospy.ServiceProxy('spice_name_server', SpiceName)
+            # Send request for spice_name to spice_name_server
+            spice_name_request = GetSpiceNameRequest()
+            spice_name_service_handle = rospy.ServiceProxy('spice_name_server', GetSpiceName)
             print("[spiceUpCoordinator] : Requesting target spice name")
             spice_name_service_response = spice_name_service_handle(spice_name_request)
-            target_spice = spice_name_service_response.spice_name
+            target_spice = spice_name_service_response.target_spice_name
             print("[spiceUpCoordinator] : Received target spice name: "+str(target_spice))
 
-            # Send request for target spice position idx to idx_finder_server
-            idx_request = IDXAcquisitionRequest()
-            idx_request.target_spice = target_spice
-            idx_request.mask = self.mask_msg
-            idx_request.color_frame = self.color_msg
-            idx_request.has_five_contours = self.mask_has_five_contours
-            idx_acquisition_service_handle = rospy.ServiceProxy('idx_finder_server', IDXAcquisition)
-            print("[spiceUpCoordinator] : Requesting target spice IDX")
-            idx_acquisition_service_response = idx_acquisition_service_handle(idx_request)
-            target_idx = idx_acquisition_service_response.idx
-            print("[spiceUpCoordinator] : Received target spice IDX: "+str(target_idx))
-            if target_idx == -1:
-                print("[spiceUpCoordinator] : IDX finder failed. Aborting action! ")
+            # Send request for target-spice location-idx to idx_finder_server
+            find_index_request = FindIndexRequest(target_spice,self.mask_msg,self.last_image_color_msg,self.mask_has_five_contours)
+            find_index_service_handle = rospy.ServiceProxy('idx_finder_server', FindIndex)
+            print("[spiceUpCoordinator] : Requesting target-spice location-index ")
+            find_index_service_response = find_index_service_handle(find_index_request)
+            target_location_index = find_index_service_response.idx
+            print("[spiceUpCoordinator] : Received location index: "+str(target_location_index))
+            if target_location_index == -1:
+                print("[spiceUpCoordinator] : Finding index failed! Aborting action! ")
                 self.action_server.set_aborted(result)
                 self.shutdown("FAIL")
             else:
                 # Fill result
-                grasp_msg = self.pp.grasp_msg_dict[target_idx]
+                grasp_msg = self.poseProcessor.grasp_msg_dict[target_location_index]
                 result.ee_pickup_target = grasp_msg
-                result.ee_dropoff_target = self.pp.drop_off_msg_dict[self.drop_off_index]
+                result.ee_dropoff_target = self.poseProcessor.drop_off_msg_dict[self.drop_off_index]
 
-                # Publish grasp pose
-                #grasp_pose = self.pp.grasp_dict[target_idx]
+                # Broadcast grasp pose to tf-tree
                 br = tf.TransformBroadcaster()
                 br.sendTransform((grasp_msg.pose.position.x, 
                                   grasp_msg.pose.position.y, 
@@ -166,26 +126,85 @@ class spiceUpCoordinator:
                                  rospy.Time.now(),
                                  "spice_up_grasp",
                                  "dynaarm_REALSENSE_color_optical_frame")
-                print("[spiceUpCoordinator] : Published grasp tf")
 
-
-                self.drop_off_index += 1 # Next time use other drop off location
+                self.drop_off_index += 1 # Use the second drop off pose for the next request
+                
+                # Set action status to succeeded and transfer result to action server
                 self.action_server.set_succeeded(result)
             
             # Visualization
-            pose_viz_img = self.pp.get_specific_viz(target_idx,self.drop_off_index)
+            pose_viz_img = self.poseProcessor.get_specific_viz(target_location_index,self.drop_off_index)
             if pose_viz_img is not None:
                 pose_visualized_msg = self.cv2_to_ros(pose_viz_img)
-                #pose_visualized_msg = self.cv2_to_ros(self.pp.pose_visualized_img_all)
-                
-                #pose_visualized_msg.header.stamp = rospy.Time.now()
                 self.pose_debug_pub.publish(pose_visualized_msg)
 
             # Shutdown
             if self.drop_off_index == 2:
                 self.shutdown("Job done")
 
+    def load_params(self):
         
+        self.poseProcessor = None 
+
+        self.K = self.get_intrinsics()
+
+        self.drop_off_index = 0 # Index of drop of pose. After first drop off pose is computed, this variable is incremented by one. Once it reaches two, the node is killed
+
+        self.mask_msg = None
+
+        self._bridge = CvBridge()
+
+        self.last_image_color_msg = None
+        self.last_image_depth = None
+        self.last_image_depth_msg = None
+
+
+        sim = True
+        if sim:
+            self.camera_info_topic_name = "/camera/color/camera_info"
+            self.color_topic_name = "/camera/color/image_raw"
+            self.depth_topic_name = "/camera/aligned_depth_to_color/image_raw"
+        else:
+            self.camera_info_topic_name = "/dynaarm_REALSENSE/color/camera_info"
+            self.color_topic_name = "/dynaarm_REALSENSE/color/image_raw"
+            self.depth_topic_name = "/dynaarm_REALSENSE/aligned_depth_to_color/image_raw"
+
+    # Utils -----------------------------------------------------------    
+
+    def get_intrinsics(self):
+        try:
+            data = rospy.wait_for_message(self.camera_info_topic_name, CameraInfo, timeout=10.0)
+            K = np.array(data.K).reshape(3, 3).astype(np.float64)
+            return K
+        except rospy.ROSException:
+            rospy.logwarn(f"[SpiceUpActionServer]: Failed to get intrinsics from topic '{self.camera_info_topic_name}', retrying...")
+            return self.get_intrinsics()
+
+    def synch_col_image_callback(self, color_msg):
+        try:
+            #cv_color_img = self._bridge.imgmsg_to_cv2(color_msg,desired_encoding="bgr8")
+            #self.last_image_color = cv_color_img
+            self.last_image_color_msg = color_msg
+
+        except CvBridgeError as e:
+            print(e)
+    
+    def synch_depth_image_callback(self, depth_msg):
+        try:
+            cv_depth_img = self._bridge.imgmsg_to_cv2(depth_msg,desired_encoding = "passthrough").astype(np.uint16).copy() / 1000.0
+            cv_depth_img[(cv_depth_img < 0.1)] = 0
+            self.last_image_depth = cv_depth_img
+            self.last_image_depth_msg = depth_msg
+
+        except CvBridgeError as e:
+            print(e)
+
+    def ros_to_cv2(self, frame: Image, desired_encoding="bgr8"):
+        return self._bridge.imgmsg_to_cv2(frame, desired_encoding=desired_encoding)
+
+    def cv2_to_ros(self, frame: np.ndarray):
+        return self._bridge.cv2_to_imgmsg(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), encoding="rgb8")
+    
     def shutdown(self,msg):
         print("[spiceUpCoordinator] : Sending shutdown request")
         shutdown_msg = Bool()
@@ -194,42 +213,8 @@ class spiceUpCoordinator:
 
         print("[spiceUpCoordinator] : Shutting down")
         rospy.signal_shutdown(msg)
+    # -----------------------------------------------------------------
 
-    def ros_to_cv2(self, frame: Image, desired_encoding="bgr8"):
-        return self._bridge.imgmsg_to_cv2(frame, desired_encoding=desired_encoding)
-
-    def cv2_to_ros(self, frame: np.ndarray):
-        return self._bridge.cv2_to_imgmsg(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), encoding="rgb8")
-
-    def load_params(self):
-        
-        self.pp = None # PoseProcessor instance
-
-        self.K = self.get_intrinsics()
-
-        self.drop_off_index = 0
-
-        self.mask_msg = None
-        self.color_msg = None
-
-        self._bridge = CvBridge()
-
-        self.last_image_color = None
-        self.last_image_color_msg = None
-
-        self.last_image_depth = None
-        self.last_image_depth_msg = None
-
-
-        sim = False
-        if sim:
-            self.color_topic_name = "/camera/color/image_raw"
-            self.depth_topic_name = "/camera/aligned_depth_to_color/image_raw"
-        else:
-            self.color_topic_name = "/dynaarm_REALSENSE/color/image_raw"
-            self.depth_topic_name = "/dynaarm_REALSENSE/aligned_depth_to_color/image_raw"
-        
-        
 if __name__ == '__main__':
     rospy.init_node('spice_up_action_server')
     server = spiceUpCoordinator()

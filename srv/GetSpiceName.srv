@@ -1,4 +1,4 @@
 # Request constants
 ---
 # Response constants
-string spice_name
+string target_spice_name
