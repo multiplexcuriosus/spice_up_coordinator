@@ -17,7 +17,7 @@ class poseProcessor:
 
 
         # Get mesh props
-        mesh_file_path = "/home/carmen/ros/catkin_ws/src/spice_up_coordinator/data/kallax_with_backplate_meters.obj"
+        mesh_file_path = rospy.get_param("spice_up_coordination/mesh_file_path")
         self.mesh, self.mesh_props = self.load_mesh(mesh_file_path)
         self.bbox = self.mesh_props["bbox"]
         self.extents = self.mesh_props["extents"]

@@ -49,17 +49,17 @@ class spiceUpCoordinator:
         self.action_server.start()
 
 
-        print("[spiceUpCoordinator] : Waiting for spice_name_server...")
-        rospy.wait_for_service('spice_name_server')
-        print("[spiceUpCoordinator] : spice_name_server found")
+        print("[spiceUpCoordinator] : Waiting for get_spice_name_service...")
+        rospy.wait_for_service('get_spice_name_service')
+        print("[spiceUpCoordinator] : get_spice_name_service found")
 
-        print("[spiceUpCoordinator] : Waiting for idx_finder_server...")
-        rospy.wait_for_service('idx_finder_server')
-        print("[spiceUpCoordinator] : idx_finder_server found")
+        print("[spiceUpCoordinator] : Waiting for find_index_service...")
+        rospy.wait_for_service('find_index_service')
+        print("[spiceUpCoordinator] : find_index_service found")
 
-        print("[spiceUpCoordinator] : Waiting for pose_est_server...")
-        rospy.wait_for_service('pose_est_server')
-        print("[spiceUpCoordinator] : pose_est_server found")
+        print("[spiceUpCoordinator] : Waiting for estimate_pose_service...")
+        rospy.wait_for_service('estimate_pose_service')
+        print("[spiceUpCoordinator] : estimate_pose_service found")
 
         print("[spiceUpCoordinator] : "+str("Initialized"))
         
@@ -79,7 +79,7 @@ class spiceUpCoordinator:
             # If this is the first action request: request pose and generate grasp and dropoff poses
             if self.drop_off_index == 0: 
                 pose_request = EstimatePoseRequest(self.last_image_color_msg,self.last_image_depth_msg)
-                pose_service_handle = rospy.ServiceProxy('pose_est_server', EstimatePose)
+                pose_service_handle = rospy.ServiceProxy('estimate_pose_service', EstimatePose)
                 print("[spiceUpCoordinator] : Requesting shelf pose")
                 pose_service_response = pose_service_handle(pose_request)
                 T_ce_msg = pose_service_response.T_ce
@@ -91,7 +91,7 @@ class spiceUpCoordinator:
 
             # Send request for spice_name to spice_name_server
             spice_name_request = GetSpiceNameRequest()
-            spice_name_service_handle = rospy.ServiceProxy('spice_name_server', GetSpiceName)
+            spice_name_service_handle = rospy.ServiceProxy('get_spice_name_service', GetSpiceName)
             print("[spiceUpCoordinator] : Requesting target spice name")
             spice_name_service_response = spice_name_service_handle(spice_name_request)
             target_spice = spice_name_service_response.target_spice_name
@@ -99,7 +99,7 @@ class spiceUpCoordinator:
 
             # Send request for target-spice location-idx to idx_finder_server
             find_index_request = FindIndexRequest(target_spice,self.mask_msg,self.last_image_color_msg,self.mask_has_five_contours)
-            find_index_service_handle = rospy.ServiceProxy('idx_finder_server', FindIndex)
+            find_index_service_handle = rospy.ServiceProxy('find_index_service', FindIndex)
             print("[spiceUpCoordinator] : Requesting target-spice location-index ")
             find_index_service_response = find_index_service_handle(find_index_request)
             target_location_index = find_index_service_response.idx
@@ -146,8 +146,6 @@ class spiceUpCoordinator:
         
         self.poseProcessor = None 
 
-        self.K = self.get_intrinsics()
-
         self.drop_off_index = 0 # Index of drop of pose. After first drop off pose is computed, this variable is incremented by one. Once it reaches two, the node is killed
 
         self.mask_msg = None
@@ -159,7 +157,7 @@ class spiceUpCoordinator:
         self.last_image_depth_msg = None
 
 
-        sim = True
+        sim = rospy.get_param("spice_up_coordination/in_simulation_mode")
         if sim:
             self.camera_info_topic_name = "/camera/color/camera_info"
             self.color_topic_name = "/camera/color/image_raw"
@@ -168,6 +166,8 @@ class spiceUpCoordinator:
             self.camera_info_topic_name = "/dynaarm_REALSENSE/color/camera_info"
             self.color_topic_name = "/dynaarm_REALSENSE/color/image_raw"
             self.depth_topic_name = "/dynaarm_REALSENSE/aligned_depth_to_color/image_raw"
+
+        self.K = self.get_intrinsics()
 
     # Utils -----------------------------------------------------------    
 
@@ -182,8 +182,8 @@ class spiceUpCoordinator:
 
     def synch_col_image_callback(self, color_msg):
         try:
-            #cv_color_img = self._bridge.imgmsg_to_cv2(color_msg,desired_encoding="bgr8")
-            #self.last_image_color = cv_color_img
+            cv_color_img = self._bridge.imgmsg_to_cv2(color_msg,desired_encoding="bgr8")
+            self.last_image_color = cv_color_img
             self.last_image_color_msg = color_msg
 
         except CvBridgeError as e:
