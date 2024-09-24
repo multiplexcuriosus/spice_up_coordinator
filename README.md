@@ -7,11 +7,13 @@ export PYTHONPATH=$PYTHONPATH:/home/jau/ros/catkin_ws/src/spice_up_coordinator/s
 export PYTHONPATH=$PYTHONPATH:/home/jau/spice_up/lib/python3.8/site-packages/
 
 ```
+To reset the PYTHONPATH to what it was prior to this operation run:
+```
+export PYTHONPATH=/home/jau/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
+```
+
 All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed or are contained in the `spice_up`-venv on the jetson. To source it run:
 ```
 source /home/jau/spice_up/bin/activate  
 ```
-## Reset pythonpath
-```
-export PYTHONPATH=/home/jau/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
-```
+
