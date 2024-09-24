@@ -10,7 +10,7 @@ This diagram depicts the relation between the spice_up_coordinator and the menti
 The numbers indicate the sequence of the events and the colors the node which is either requesting or responding.
 
 ## Launch files
-There is only one launch file: `all.launch`. 
+There is only one launch file: `all.launch`.   
 It launches the following parameter files:  
 * `index_finder.yaml`
 * `spice_up_coordinator.yaml`  <br />
