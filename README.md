@@ -27,9 +27,9 @@ Specifically, the following services are launched:
 ### Pythonpath + source venv
 Doing `roslaunch spice_up_coordinator all.launch` on the jetson results in an error saying that certain sub-modules (e.g poseProcessor.py) cannot be found. To fix this do the following on the jetson:
 ```
-export PYTHONPATH=$PYTHONPATH:/home/jau/ros/catkin_ws/src/idx_finder/scripts/  
-export PYTHONPATH=$PYTHONPATH:/home/jau/ros/catkin_ws/src/spice_up_coordinator/scripts/  
-export PYTHONPATH=$PYTHONPATH:/home/jau/spice_up/lib/python3.8/site-packages/
+export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scripts/  
+export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
+export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
 
 ```
 To reset the PYTHONPATH to what it was prior to this operation run:
