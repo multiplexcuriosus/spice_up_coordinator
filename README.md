@@ -14,9 +14,11 @@ There is only one launch file: `all.launch`.
 It launches the following parameter files:  
 * `index_finder.yaml`
 * `spice_up_coordinator.yaml`  <br />
+
 And the following nodes:  
 * `index_finder`
 * `spice_up_coordination`  <br />
+
 Specifically, the following services are launched:  
 * `idx_finder_server` 
 * `spice_up_action_server` 
