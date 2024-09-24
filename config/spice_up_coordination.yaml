@@ -1,3 +1,0 @@
-spice_up_coordination:
-  in_simulation_mode: True
-  mesh_file_path: "/home/jau/ros/catkin_ws/src/spice_up_coordinator/data/kallax_with_backplate_meters.obj"

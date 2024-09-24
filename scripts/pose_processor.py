@@ -7,22 +7,27 @@ from scipy.spatial.transform import Rotation
 from tf.transformations import quaternion_matrix
 
 class poseProcessor:
-    def __init__(self,T_ce_msg,K,color_frame) -> None:
+    '''
+    The poseProcessor receives the T_ce pose, the intrinsics and a color-img. Based on that it computes:
+    - the four possible grasp poses (in C-Frame)
+    - the two possible drop off poses (in C-Frame)
+    '''
+    def __init__(self,T_ce_msg,K,color_frame,debug) -> None:
         
+        self.debug = debug
         self.K = K
-        self.T_ce = self.read_pose_msg(T_ce_msg)
+        self.T_ce = self.pose_msg_to_pose_matrix(T_ce_msg)
 
-        self.simple_grasp = True
-        self.correct_rot = True
+        self.simple_grasp = True # If True, the alignment-approach is used
+        self.correct_rot = True # If True, the grasp pose is aligned with the one from the simulator
 
-
-        # Get mesh props
-        mesh_file_path = rospy.get_param("spice_up_coordination/mesh_file_path")
+        # Get and save mesh props
+        mesh_file_path = rospy.get_param("spice_up_coordinator/mesh_file_path")
         self.mesh, self.mesh_props = self.load_mesh(mesh_file_path)
         self.bbox = self.mesh_props["bbox"]
         self.extents = self.mesh_props["extents"]
 
-        # Get shel h,w,d
+        # Get shelf h,w,d
         self.shelf_depth = self.extents[0]
         self.shelf_height = self.extents[1] # TODO: CHECK IF STILL TRUE FOR SMALLER KALLAX !! 
         self.shelf_width = self.extents[2] # TODO: CHECK IF STILL TRUE FOR SMALLER KALLAX !! 
@@ -37,7 +42,6 @@ class poseProcessor:
 
         self.T_cdo0,self.T_cdo1 = self.get_drop_off_poses()
         self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3, = self.get_grasp_poses()
-
 
         # Create pose msgs
         T_cg0_msg = self.create_pose_msg(self.T_cg0)
@@ -67,125 +71,24 @@ class poseProcessor:
             1: T_cdo1_msg
         }
 
-        # Visualizes
+        # Visualize
         self.color_frame = color_frame
         self.pose_visualized_img_all = self.get_viz_img_all(color_frame,self.T_cs,self.bbox,self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3,self.T_cdo0,self.T_cdo1)
 
-    def get_specific_viz(self,gidx,didx):
-        return self.get_viz_img_specific(self.color_frame,self.T_cs,self.bbox,self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3,self.T_cdo0,self.T_cdo1,gidx,didx)
-
-    def read_pose_msg(self,pose_msg):
-
-        T = np.zeros((4,4))
-        T[0,3] = pose_msg.pose.position.x
-        T[1,3] = pose_msg.pose.position.y
-        T[2,3] = pose_msg.pose.position.z
-        
-        quat = [0,0,0,0]
-        quat[0] = pose_msg.pose.orientation.x 
-        quat[1] = pose_msg.pose.orientation.y
-        quat[2] = pose_msg.pose.orientation.z 
-        quat[3] = pose_msg.pose.orientation.w
-
-        T[0:3,0:3] = quaternion_matrix(quat)[0:3,0:3] #https://github.com/ros/geometry/blob/hydro-devel/tf/src/tf/transformations.py line 1174
-        T[3,3] = 1
-
-        return T
-
-    def create_pose_msg(self,T):
-        pose_mat = T.reshape(4, 4)
-        pose_msg = PoseStamped()
-        pose_msg.header.stamp = rospy.Time.now()
-        pose_msg.header.frame_id = "dynaarm_REALSENSE_color_optical_frame"
-        pose_msg.pose.position.x = pose_mat[0, 3]
-        pose_msg.pose.position.y = pose_mat[1, 3]
-        pose_msg.pose.position.z = pose_mat[2, 3]
-        quat = Rotation.from_matrix(pose_mat[:3, :3]).as_quat()
-        pose_msg.pose.orientation.x = quat[0]
-        pose_msg.pose.orientation.y = quat[1]
-        pose_msg.pose.orientation.z = quat[2]
-        pose_msg.pose.orientation.w = quat[3]
-        return pose_msg
-    
-    def load_mesh(self, mesh_file):
-        mesh = trimesh.load(mesh_file, force="mesh")
-        mesh_props = dict()
-        to_origin, extents = trimesh.bounds.oriented_bounds(mesh)
-        bbox = np.stack([-extents / 2, extents / 2], axis=0).reshape(2, 3)
-        mesh_props["to_origin"] = to_origin
-        mesh_props["bbox"] = bbox
-        mesh_props["extents"] = extents
-        return mesh, mesh_props
-
-    def get_drop_off_poses(self):
-
-        T_ce = self.T_ce
-        
-        #Create drop off pose DO0,DO1 ->TODO: drop off position bottom part of bottle or com?
-        
-        # Create rotation matrix from C frame to standard frame used in alma simulator (?)
-        R_esim = np.array([[0,0,1],
-                         [0,-1,0],
-                         [1,0,0]])
-
-        R_ce = T_ce[0:3,0:3]
-        R_do = R_ce @ R_esim
-
-
-        DO0_E = np.array([self.shelf_depth/2,self.shelf_width*0.75,self.shelf_height,1.0])
-        DO1_E = np.array([self.shelf_depth/2,self.shelf_width*0.25,self.shelf_height,1.0])
-        
-        T_cdo0 = np.zeros((4,4))
-        T_cdo0[0:3,0:3] = R_do
-        T_cdo0[:,3] = T_ce @ DO0_E
-        T_cdo0[3,3] = 1
-    
-        T_cdo1 = np.zeros((4,4))
-        T_cdo1[0:3,0:3] = R_do
-        T_cdo1[:,3] = T_ce @ DO1_E
-        T_cdo1[3,3] = 1
-
-        return T_cdo0,T_cdo1
-    
-    def compute_grasp_pose(self,T_em,T_bc,T_ec):
-        T_cb = np.linalg.inv(T_bc)
-        T_eb = T_ec @ T_cb
-        #print("T_eb: "+str(T_eb))
-
-        M_E = T_em[0:3,3]
-        B_E = T_eb[0:3,3]
-        BM_r_E = M_E - B_E
-        BM_r_E_unit = BM_r_E / np.linalg.norm(BM_r_E)
-
-        gamma_E = np.array([B_E[0],B_E[1],M_E[2]]) # point on height of grasp positions below frame (used to make grasp tf orthonormal)
-        gammaM_r_E = M_E - gamma_E
-        gammaM_r_E_unit = gammaM_r_E / np.linalg.norm(gammaM_r_E)
-        normal_to_gammaG_in_ez_plane_E = np.array([-gammaM_r_E_unit[1],gammaM_r_E_unit[0],0])
-        
-        G_zaxis_E = BM_r_E_unit
-        G_yaxis_E = normal_to_gammaG_in_ez_plane_E
-        G_xaxis_E = np.cross(G_zaxis_E,G_yaxis_E)
-
-        R_eg = np.array([G_xaxis_E,G_yaxis_E,G_zaxis_E])
-
-        T_eg = np.zeros((4,4))
-        T_eg[0:3,0:3] = R_eg
-        T_eg[0:3,3] = M_E
-        T_eg[3,3] = 1
-
-        if False:
-            print("M_e: "+str(M_E))
-            print("B_E: "+str(B_E))
-            print("BM_r_E: "+str(BM_r_E))
-            print("gamma_E: "+str(gamma_E))
-            print("normal_to_gammaG_in_ez_plane_E: "+str(normal_to_gammaG_in_ez_plane_E))
-
-
-
-
-        return T_eg
-
     def get_grasp_poses(self):
+
+        '''
+        C-frame: camera frame
+        E-frame: 
+            position: bottom right front corner of shelf
+            rotation: x: depth of shelf, y: width of shelf, z: height of shelf
+        M-frame (M0,M1,M2,M3)
+            position: center of contact circle between spice-bottle-i and shelf
+            rotation: same as E-Frame
+        B-frame: anymal base frame (so far only faked in this function)
+         
+        '''
+
 
         T_ce = self.T_ce
         T_ec = np.linalg.inv(T_ce)
@@ -247,7 +150,7 @@ class poseProcessor:
         T_cg3 = T_ce @ T_eg3  
 
         if self.correct_rot:
-            # Construct transforms from C to GRASP_i
+            # Construct transforms from C to GRASP_i such that they align with gripper frame from sim
             T_gsim = np.array([[0, 0, 1,0],
                                [0,-1, 0,0],
                                [1, 0, 0,0],
@@ -258,14 +161,128 @@ class poseProcessor:
             T_cg2 = T_cg2 @ T_gsim 
             T_cg3 = T_cg3 @ T_gsim 
 
-        return T_cg0,T_cg1,T_cg2,T_cg3
+        return T_cg0,T_cg1,T_cg2,T_cg3  
+
+    def get_drop_off_poses(self):
+
+        T_ce = self.T_ce # Pose from C- to E-frame
+        
+        # Create rotation matrix from C-frame to gripper frame used in alma simulator 
+        R_esim = np.array([[0,0,1],
+                           [0,-1,0],
+                           [1,0,0]])
+
+        R_ce = T_ce[0:3,0:3] 
+        R_do_C = R_ce @ R_esim # R_do: Drop off rotation in C-framae
+
+        DO0_E = np.array([self.shelf_depth/2,self.shelf_width*0.75,self.shelf_height,1.0]) # Dropoff0 position in E-frame
+        DO1_E = np.array([self.shelf_depth/2,self.shelf_width*0.25,self.shelf_height,1.0]) # Dropoff1 position in E-frame
+        
+        T_cdo0 = np.zeros((4,4)) # Dropoff0 pose in C-frame
+        T_cdo0[0:3,0:3] = R_do_C
+        T_cdo0[:,3] = T_ce @ DO0_E
+        T_cdo0[3,3] = 1
     
+        T_cdo1 = np.zeros((4,4)) # Dropoff1 pose in C-frame
+        T_cdo1[0:3,0:3] = R_do_C
+        T_cdo1[:,3] = T_ce @ DO1_E
+        T_cdo1[3,3] = 1
+
+        return T_cdo0,T_cdo1
+    
+    def compute_grasp_pose_aligned_with_base_frame(self,T_em,T_bc,T_ec):
+        '''
+        Objective: Align z-axis of grasp pose with vector from base-frame to grasp position
+        Method: Described in ReadMe and report
+        Status: Not tested on robot nor in sim --> visualization looks weird
+        '''
+
+        T_cb = np.linalg.inv(T_bc)
+        T_eb = T_ec @ T_cb
+
+        M_E = T_em[0:3,3]
+        B_E = T_eb[0:3,3]
+        BM_r_E = M_E - B_E
+        BM_r_E_unit = BM_r_E / np.linalg.norm(BM_r_E)
+
+        gamma_E = np.array([B_E[0],B_E[1],M_E[2]]) # point on height of grasp positions below frame (used to make grasp tf orthonormal)
+        gammaM_r_E = M_E - gamma_E
+        gammaM_r_E_unit = gammaM_r_E / np.linalg.norm(gammaM_r_E)
+        normal_to_gammaG_in_ez_plane_E = np.array([-gammaM_r_E_unit[1],gammaM_r_E_unit[0],0])
+        
+        G_zaxis_E = BM_r_E_unit
+        G_yaxis_E = normal_to_gammaG_in_ez_plane_E
+        G_xaxis_E = np.cross(G_zaxis_E,G_yaxis_E)
+
+        R_eg = np.array([G_xaxis_E,G_yaxis_E,G_zaxis_E])
+
+        T_eg = np.zeros((4,4))
+        T_eg[0:3,0:3] = R_eg
+        T_eg[0:3,3] = M_E
+        T_eg[3,3] = 1
+
+        if False:
+            print("M_e: "+str(M_E))
+            print("B_E: "+str(B_E))
+            print("BM_r_E: "+str(BM_r_E))
+            print("gamma_E: "+str(gamma_E))
+            print("normal_to_gammaG_in_ez_plane_E: "+str(normal_to_gammaG_in_ez_plane_E))
+
+        return T_eg
+
+    # Utils  -------------------------------------
+
     def project_3d_to_2d(self,pt,K,ob_in_cam):
         pt = pt.reshape(4,1)
         projected = K @ ((ob_in_cam@pt)[:3,:])
         projected = projected.reshape(-1)
         projected = projected/projected[2]
         return projected.reshape(-1)[:2].round().astype(int)
+
+    def pose_msg_to_pose_matrix(self,pose_msg):
+
+        T = np.zeros((4,4))
+        T[0,3] = pose_msg.pose.position.x
+        T[1,3] = pose_msg.pose.position.y
+        T[2,3] = pose_msg.pose.position.z
+        
+        quat = [0,0,0,0]
+        quat[0] = pose_msg.pose.orientation.x 
+        quat[1] = pose_msg.pose.orientation.y
+        quat[2] = pose_msg.pose.orientation.z 
+        quat[3] = pose_msg.pose.orientation.w
+
+        T[0:3,0:3] = quaternion_matrix(quat)[0:3,0:3] #https://github.com/ros/geometry/blob/hydro-devel/tf/src/tf/transformations.py line 1174
+        T[3,3] = 1
+
+        return T
+
+    def create_pose_msg(self,T):
+        pose_mat = T.reshape(4, 4)
+        pose_msg = PoseStamped()
+        pose_msg.header.stamp = rospy.Time.now()
+        pose_msg.header.frame_id = "dynaarm_REALSENSE_color_optical_frame"
+        pose_msg.pose.position.x = pose_mat[0, 3]
+        pose_msg.pose.position.y = pose_mat[1, 3]
+        pose_msg.pose.position.z = pose_mat[2, 3]
+        quat = Rotation.from_matrix(pose_mat[:3, :3]).as_quat()
+        pose_msg.pose.orientation.x = quat[0]
+        pose_msg.pose.orientation.y = quat[1]
+        pose_msg.pose.orientation.z = quat[2]
+        pose_msg.pose.orientation.w = quat[3]
+        return pose_msg
+    
+    def load_mesh(self, mesh_file):
+        mesh = trimesh.load(mesh_file, force="mesh")
+        mesh_props = dict()
+        to_origin, extents = trimesh.bounds.oriented_bounds(mesh)
+        bbox = np.stack([-extents / 2, extents / 2], axis=0).reshape(2, 3)
+        mesh_props["to_origin"] = to_origin
+        mesh_props["bbox"] = bbox
+        mesh_props["extents"] = extents
+        return mesh, mesh_props
+
+    # Visualization ---------------------------------------------------------------------------------------------------------------
 
     def draw_posed_3d_box(self,K, img, ob_in_cam, bbox, line_color=(0,255,0), linewidth=2):
         '''Revised from 6pack dataset/inference_dataset_nocs.py::projection
@@ -346,6 +363,7 @@ class poseProcessor:
         img = cv2.line(img, uv[0].tolist(), uv[1].tolist(), color=line_color, thickness=linewidth, lineType=cv2.LINE_AA)
         return img
 
+    # Get visualization of all grasp and drop off poses
     def get_viz_img_all(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1):
         
         # Draw bbox and T_CA coord axes
@@ -364,6 +382,7 @@ class poseProcessor:
 
         return pose_visualized
 
+    # Get grasp and drop off pose visualization for a specific grasp and drop off pose
     def get_viz_img_specific(self,color,T_cs,bbox,T_cg0,T_cg1,T_cg2,T_cg3,T_cdo0,T_cdo1,target_spice_loc_idx,target_dropoff_idx):
         
         # Draw bbox and T_CA coord axes
@@ -394,3 +413,8 @@ class poseProcessor:
 
         return pose_visualized
 
+    # Wrapper for get_viz_img_specific
+    def get_specific_viz(self,gidx,didx):
+        return self.get_viz_img_specific(self.color_frame,self.T_cs,self.bbox,self.T_cg0,self.T_cg1,self.T_cg2,self.T_cg3,self.T_cdo0,self.T_cdo1,gidx,didx)
+
+    # ------------------------------------------------------------------------------------------------------------------------------
