@@ -4,12 +4,22 @@ The spice_up_coordinator is the interface between the spiceUpAutomationModule an
 * `idx_finder`
 * `foundation_pose_ros`
 * `spice_selectioin_gui`
-## Control flow
+## Information flow
 This diagram depicts the relation between the spice_up_coordinator and the mentioned nodes.
 ![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)
 The numbers indicate the sequence of the events and the colors the node which is either requesting or responding.
 
-
+## Launch files
+There is only one launch file: `all.launch`. 
+It launches the following parameter files:
+* `index_finder.yaml`
+* `spice_up_coordinator.yaml`
+And the following nodes:
+* `index_finder`
+* `spice_up_coordination`
+Specifically, the following services are launched:
+* `idx_finder_server` 
+* `spice_up_action_server` 
 
 ## Terminal setup
 ### Pythonpath + source venv
