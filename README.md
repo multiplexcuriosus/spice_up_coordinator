@@ -5,7 +5,7 @@ The spice_up_coordinator is the interface between the spiceUpAutomationModule an
 * `foundation_pose_ros`
 * `spice_selectioin_gui`
 ## Control flow
-![alt text](https://github.com/multiplexcuriosus/spice_up_coordinator/ReadMe_imgs/master/spice_up_nodes.pdf?raw=true)
+![alt text](https://github.com/multiplexcuriosus/spice_up_coordinator/ReadMe_imgs/master/spice_up_nodes.png?raw=true)
 
 
 ## Terminal setup
