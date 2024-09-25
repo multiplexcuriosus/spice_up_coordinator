@@ -36,15 +36,12 @@ Specifically, the following services are launched:
 * Source it with `source /path/to/new/virtual/environment/bin/activate `
 * Install requirements file with `pip install requirements.txt`
 ### OPC
-1. Git clone the following repos into the opc catkin_ws/src:
-* foundation_pose_ros: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
-* spice_selection_gui: `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
-2. Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
-3. Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).
-4. Install conda or mamba
-5. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`
-6. cd into the Foundationpose directory   
-7. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
+Install foundationpose:  
+1. Install conda or mamba
+2. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`
+3. cd into the Foundationpose directory   
+4. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
+
 ```
 # create conda environment
 conda create -n foundationpose python=3.9 
@@ -75,10 +72,17 @@ Executing the last line will most likely cause errors. To remedy them do the fol
 I. ` mkdir /home/<username>/miniforge3/envs/foundationpose/lib64`  
 II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 `  
 
-8. **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
+5. **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 Install:  
 * cuda toolkit: `mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0`  
 * cuda runtime: `mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0`  
+
+6. Git clone the following repos into the opc catkin_ws/src:
+* foundation_pose_ros: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
+* spice_selection_gui: `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
+7. Install ros and setup catkin workspace
+* Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
+* Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).
 
 ## Setup
 ### Pythonpath + source venv
