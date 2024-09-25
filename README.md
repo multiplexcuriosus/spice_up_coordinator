@@ -68,7 +68,7 @@ CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/cmake
 
 Executing the last line will most likely cause errors. To remedy them do the following:  
 
-**Missing lib64**  
+**cannot find -lcudart: No such file or directory**  
 ```
 mkdir /home/<username>/miniforge3/envs/foundationpose/lib64
 cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 
