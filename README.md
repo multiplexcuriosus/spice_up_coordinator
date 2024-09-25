@@ -112,4 +112,6 @@ Algorithm:
 8. The rotation of the grasp pose G is now G_rot = [BG_r_E,n,zeta]
 
 This algorithm is implemented in the poseProcessor under `compute_grasp_pose_aligned_with_base_frame` but was not yet tested since the grasp poses it produces look wrong. 
+
+Note that the resulting grasp pose orientation is not yet aligned with the one from the gripper in the simulation.
  
