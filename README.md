@@ -30,7 +30,7 @@ There are four possible orientations of the CAD model of the wide shelf which ar
 For the narrow shelf it will be two possible rotations. 
 
 In order to have a reliable reference coordinate frame, the following is done.
-<img src="[https://user-images.githubusercontent.com/16319829/81180309-2b51f000-8fee-11ea-8a78-ddfe8c3412a7.png](https://github.com/user-attachments/assets/d405b2dc-6dc7-411d-877c-1d651fd5fcca)" width=50% height=50%>
+<img src="https://github.com/user-attachments/assets/d405b2dc-6dc7-411d-877c-1d651fd5fcca" width=50% height=50%>
 ![image]()
 1. From the returned pose estimate, all 3D corner positions are identified.
 2. Based on the C-frame x-axis, all corners are separated into a left and a right group (blue and red in the image above)
