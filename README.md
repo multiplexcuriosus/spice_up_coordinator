@@ -39,8 +39,9 @@ Specifically, the following services are launched:
 1. Git clone the following repos into the opc catkin_ws/src:
 * foundation_pose_ros: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
 * spice_selection_gui: `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
-2. Go to https://github.com/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22 and do the steps:
-  * Setup release: Steps 1-2.5.2 (not sure if necessary
+2. Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do the steps:
+  * Setup release: Steps 1-2.5.2 (not sure if necessary)
+3. Go to [here]() and do everything up to step 3.1 (for step 3.1, use sim)
   
   Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros?tab=readme-ov-filea) to setup the leggedrobotics foundationpose ros wrapper.
 3. 
