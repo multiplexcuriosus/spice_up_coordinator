@@ -72,6 +72,17 @@ Executing the last line will most likely cause errors. To remedy them do the fol
 I. ` mkdir /home/<username>/miniforge3/envs/foundationpose/lib64`  
 II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 `  
 
+**weird error**
+In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py
+```
+    include_dirs=[
+        #"/usr/local/include/eigen3",
+        #"/usr/include/eigen3",
+        "/home/<username>/miniforge3/envs/foundationpose/include/eigen3"
+
+    ],
+```
+
 5. **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 Install:  
 * cuda toolkit: `mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0`  
