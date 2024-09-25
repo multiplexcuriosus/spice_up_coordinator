@@ -100,7 +100,8 @@ Building the extensions succeeded if you see: "Successfully installed common".
 ```
 git checkout feature/realsense
 ```
-This will only work if you commit the changes made to setup.py. 
+This will only work if you commit the changes made to setup.py.  
+
 7. cd into the Foundationpose directory and install the module in the venv with: 
 ```
 pip install -e .
@@ -120,6 +121,9 @@ catkin build spice_selection_gui -DPYTHON_EXECUTABLE=/usr/bin/python3
  
 
 ## Setup
+### params
+In the `pose_detector.yaml` file set the right mesh_file path.  
+
 ### Pythonpath + source venv
 Doing `roslaunch spice_up_coordinator all.launch` on the jetson results in an error saying that certain sub-modules (e.g poseProcessor.py) cannot be found. To fix this do the following on the jetson:
 ```
