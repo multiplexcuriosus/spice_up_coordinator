@@ -41,4 +41,7 @@ All packages required to run launch the `idx_finder` & `spice_up_coordinator` no
 ```
 source /home/jau/spice_up/bin/activate  
 ```
+The `spice_up`-venv contains the following packages:
+* trimesh
+* easyocr
 
