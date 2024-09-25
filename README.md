@@ -3,7 +3,9 @@
 The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
 * `idx_finder`
 * `foundation_pose_ros`
-* `spice_selectioin_gui`
+* `spice_selection_gui`
+
+Additionally, the spice_up_coordinator contains the poseProcessor module, which creates the E-Frame (defined below) and generates the candidate grasp and drop off poses.
 ## Information flow
 This diagram depicts the relation between the spice_up_coordinator and the mentioned nodes.
 ![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)
@@ -22,6 +24,22 @@ And the following nodes:
 Specifically, the following services are launched:  
 * `idx_finder_server` 
 * `spice_up_action_server` 
+
+## PoseProcessor
+There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by foundationpose's pose estimate.
+For the narrow shelf it will be two possible rotations. 
+
+In order to have a reliable reference coordinate frame, the following is done.
+![image](https://github.com/user-attachments/assets/d405b2dc-6dc7-411d-877c-1d651fd5fcca)
+1. From the returned pose estimate, all 3D corner positions are identified.
+2. Based on the C-frame x-axis, all corners are separated into a left and a right group (blue and red in the image above)
+3. For the L-group, the closest corner to the camera is defined as H-corner, the farthest the J-corner. Analogously for the right group with F and G
+4. For the L-group A is defined as the corner in {A,D} which is closest to H and D as the other one from {A,D}. Analogously for the R-group with E & I. Now all corners from the the initial pose estimate are well defined.
+5. The E-frame is defined as follows:
+* X-Axis: unit_vector_EF
+* Y-Axis: unit_vector_ED
+* Z-Axis: unit_vector_EG
+
 
 ## Terminal setup
 ### Pythonpath + source venv
