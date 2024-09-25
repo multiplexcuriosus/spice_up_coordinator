@@ -39,12 +39,11 @@ Specifically, the following services are launched:
 1. Git clone the following repos into the opc catkin_ws/src:
 * foundation_pose_ros: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
 * spice_selection_gui: `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
-2. Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do the steps:
-  * Setup release: Steps 1-2.5.2 (not sure if necessary)
-3. Go to [here]() and do everything up to step 3.1 (for step 3.1, use sim)
-4. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`  
-  Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros?tab=readme-ov-filea) to setup the leggedrobotics foundationpose ros wrapper.
-3. 
+2. Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
+3. Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).
+4. Install conda or mamba
+5. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper.
+ 
 
 
 ## Setup
@@ -90,7 +89,7 @@ In order to have a reliable reference coordinate frame, the following is done.
  Currently the rotation of the four graspposes is the same as in E-frame. 
  This is not ideal, it would be better if the z-axis of the grasp pose was colinear with the vector connecting the anymal base-frame and the G-frame.
  
- **Note: In the poseprocessor, there is an additional frame called M-frame. More specifically, there are four M-frames (M0,M1,M2,M3), one for each bottle.**
+ **Note: In the poseprocessor, there is an additional frame called M-frame**. More specifically, there are four M-frames (M0,M1,M2,M3), one for each bottle.
  The M_i - pose corresponds to the center of the contact cicle between each spice bottles bottom plane and the shelf. I.e the center point on which each bottle stands. The rotation of all M_i frames is the same as the E-frame.
 
  I propose the following solution to achieve the alignment:
