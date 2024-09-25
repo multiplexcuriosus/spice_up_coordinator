@@ -77,8 +77,8 @@ II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<u
 
 8. **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 Install:  
-* [cuda toolkit](https://anaconda.org/nvidia/cuda-toolkit) with `mamba install nvidia/label/cuda-11.8.0::cuda-toolkit`  
-* [cuda runtime](https://anaconda.org/nvidia/cuda-runtime) with `mamba install nvidia/label/cuda-11.8.0::cuda-runtime`  
+* cuda toolkit: `mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0`  
+* cuda runtime: `mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0`  
 
 ## Setup
 ### Pythonpath + source venv
