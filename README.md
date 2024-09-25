@@ -42,7 +42,7 @@ Specifically, the following services are launched:
 2. Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do the steps:
   * Setup release: Steps 1-2.5.2 (not sure if necessary)
 3. Go to [here]() and do everything up to step 3.1 (for step 3.1, use sim)
-  
+4. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`  
   Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros?tab=readme-ov-filea) to setup the leggedrobotics foundationpose ros wrapper.
 3. 
 
