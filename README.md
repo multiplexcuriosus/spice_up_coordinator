@@ -69,8 +69,10 @@ CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/cmake
 Executing the last line will most likely cause errors. To remedy them do the following:  
 
 **Missing lib64**  
-I. ` mkdir /home/<username>/miniforge3/envs/foundationpose/lib64`  
-II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 `  
+```
+mkdir /home/<username>/miniforge3/envs/foundationpose/lib64
+cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 
+```
 
 **RuntimeError: Error compiling objects for extension**
 In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py, edit the include_dirs as follows:
