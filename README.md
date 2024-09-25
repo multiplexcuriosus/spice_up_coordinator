@@ -72,8 +72,8 @@ Executing the last line will most likely cause errors. To remedy them do the fol
 I. ` mkdir /home/<username>/miniforge3/envs/foundationpose/lib64`  
 II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 `  
 
-**weird error**
-In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py
+**RuntimeError: Error compiling objects for extension**
+In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py, edit the include_dirs as follows:
 ```
     include_dirs=[
         #"/usr/local/include/eigen3",
