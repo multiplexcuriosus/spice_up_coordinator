@@ -39,7 +39,7 @@ Specifically, the following services are launched:
 Install ROS and setup catkin_ws:  
 1.Install ros and setup catkin workspace
 * Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
-* Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).
+* Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).  
 
 Install Foundationpose:
 2. Install conda or mamba
@@ -108,7 +108,8 @@ pip install -e .
 8. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
 9. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundationpose_ros/models/sam`
 10. Clone the rqt plugin into `catkin_ws/src`: with `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
-11. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
+11. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
+12. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
 
 If you run into this error:  `  Unable to find either executable 'empy' or Python module 'em'...  try installing the package 'python3-empy'` then do:
 ```
