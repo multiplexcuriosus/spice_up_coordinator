@@ -118,11 +118,17 @@ catkin build foundation_pose_ros -DPYTHON_EXECUTABLE=/usr/bin/python3
 catkin build spice_selection_gui -DPYTHON_EXECUTABLE=/usr/bin/python3
 ```
 
+### Usage errors
+If you encounter `PermissionError: [Errno 13] Permission denied: '/tmp/material_0.png'` then do:
+```
+sudo rm /tmp/material_0.png
+sudo rm /tmp/material.mtl
+```
  
 
 ## Setup
 ### params
-In the `pose_detector.yaml` file set the right mesh_file path.  
+In the `foundation_pose_ros/config/pose_detector.yaml` file set the right mesh_file path.  
 
 ### Pythonpath + source venv
 Doing `roslaunch spice_up_coordinator all.launch` on the jetson results in an error saying that certain sub-modules (e.g poseProcessor.py) cannot be found. To fix this do the following on the jetson:
