@@ -108,11 +108,11 @@ pip install -e .
 8. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
 9. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundationpose_ros/models/sam`
 10. Clone the rqt plugin into `catkin_ws/src`: with `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
-11. catkin build the `foundationpose_ros` & the `spice_selection_gui` packages.  
+11. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
 
 If you run into this error:  `  Unable to find either executable 'empy' or Python module 'em'...  try installing the package 'python3-empy'` then do:
 ```
-catkin build foundationpose_ros -DPYTHON_EXECUTABLE=/usr/bin/python3
+catkin build foundation_pose_ros -DPYTHON_EXECUTABLE=/usr/bin/python3
 catkin build spice_selection_gui -DPYTHON_EXECUTABLE=/usr/bin/python3
 ```
 
