@@ -69,10 +69,11 @@ python -m pip install --quiet --no-index --no-cache-dir pytorch3d -f https://dl.
 CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/cmake/pybind11 bash
  ```
 
-Executing the last line will most likely cause errors. To remedy them do the following:
+Executing the last line will most likely cause errors. To remedy them do the following:  
+
 **Missing lib64**
-I. ` mkdir /home/<username>/miniforge3/envs/foundationpose/lib64`
-II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 `
+I. ` mkdir /home/<username>/miniforge3/envs/foundationpose/lib64`  
+II. `cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 `  
 
 8. **Very important: do not install anything cuda related that has a version number not equal to 11.8**
 Install:
