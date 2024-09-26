@@ -1,29 +1,10 @@
 # The spice_up_coordinator node
-## Overview
-The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
-* `idx_finder`
-* `foundation_pose_ros`
-* `spice_selection_gui`
-
-Additionally, the spice_up_coordinator contains the poseProcessor module, which creates the E-Frame (defined below) and generates the candidate grasp and drop off poses.
-## Information flow
-This diagram depicts the relation between the spice_up_coordinator and the mentioned nodes.
-![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)
-The numbers indicate the sequence of the events and the colors the nodes which are either requesting or responding.
-
-## Launch files
-There is only one launch file: `all.launch`.   
-It launches the following parameter files:  
-* `index_finder.yaml`
-* `spice_up_coordinator.yaml`  <br />
-
-And the following nodes:  
-* `index_finder`
-* `spice_up_coordination`  <br />
-
-Specifically, the following services are launched:  
-* `idx_finder_server` 
-* `spice_up_action_server` 
+This ReadMe is structured into:
+* Installation
+* Setup
+* Launch
+* Overview
+* Specific modules
 
 ## Installation
 ### Jetson
@@ -124,8 +105,6 @@ If you encounter `PermissionError: [Errno 13] Permission denied: '/tmp/material_
 sudo rm /tmp/material_0.png
 sudo rm /tmp/material.mtl
 ```
- 
-
 ## Setup
 ### params
 In the `foundation_pose_ros/config/pose_detector.yaml` file set the right mesh_file path.  
@@ -150,6 +129,33 @@ source /home/jau/spice_up/bin/activate
 The `spice_up`-venv contains the following packages:
 * trimesh
 * easyocr
+
+## Launch files
+There is only one launch file: `all.launch`.   
+It launches the following parameter files:  
+* `index_finder.yaml`
+* `spice_up_coordinator.yaml`  <br />
+
+And the following nodes:  
+* `index_finder`
+* `spice_up_coordination`  <br />
+
+Specifically, the following services are launched:  
+* `idx_finder_server` 
+* `spice_up_action_server` 
+
+## Overview
+The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
+* `idx_finder`
+* `foundation_pose_ros`
+* `spice_selection_gui`
+
+Additionally, the spice_up_coordinator contains the poseProcessor module, which creates the E-Frame (defined below) and generates the candidate grasp and drop off poses.
+## Information flow
+This diagram depicts the relation between the spice_up_coordinator and the mentioned nodes.
+![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)
+The numbers indicate the sequence of the events and the colors the nodes which are either requesting or responding.
+
 
 ## PoseProcessor
 ### E-Frame
