@@ -58,14 +58,14 @@ CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/cmake
  ```
 
 Executing the last line will most likely cause errors. To remedy them do the following:  
-
-**cannot find -lcudart: No such file or directory**  
+Error: `cannot find -lcudart: No such file or directory`  
+Solution:  
 ```
 mkdir /home/<username>/miniforge3/envs/foundationpose/lib64
 cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 
 ```
-
-**RuntimeError: Error compiling objects for extension**
+Error:``RuntimeError: Error compiling objects for extension`
+Solution: 
 In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py, edit the include_dirs as follows:
 ```
     include_dirs=[
@@ -75,7 +75,7 @@ In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py, edit the include_d
 
     ],
 ```
-Building the extensions succeeded if you see: "Successfully installed common".
+**Building the extensions succeeded if you see: "Successfully installed common".**
 
 
 6. Switch to the branch feature/realsense  with:
