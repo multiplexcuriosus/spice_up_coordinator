@@ -64,9 +64,9 @@ Solution:
 mkdir /home/<username>/miniforge3/envs/foundationpose/lib64
 cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 
 ```
-Error:``RuntimeError: Error compiling objects for extension`
+Error:`RuntimeError: Error compiling objects for extension`
 Solution: 
-In /FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py, edit the include_dirs as follows:
+In `/FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py` edit the `include_dirs` as follows:
 ```
     include_dirs=[
         #"/usr/local/include/eigen3",
@@ -84,7 +84,7 @@ git checkout feature/realsense
 ```
 This will only work if you commit the changes made to setup.py.  
 
-7. cd into the Foundationpose directory and install the module in the venv with: 
+7. cd into the Foundationpose directory and install the module into the venv with: 
 ```
 pip install -e .
 ```
