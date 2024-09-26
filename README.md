@@ -112,27 +112,6 @@ sudo rm /tmp/material.mtl
 ### params
 In the `foundation_pose_ros/config/pose_detector.yaml` file set the right mesh_file path.  
 
-### Pythonpath + source venv
-Doing `roslaunch spice_up_coordinator all.launch` on the jetson results in an error saying that certain sub-modules (e.g poseProcessor.py) cannot be found. To fix this do the following on the jetson:
-```
-export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scripts/  
-export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
-export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
-
-```
-To reset the PYTHONPATH to what it was prior to this operation run:
-```
-export PYTHONPATH=/home/jau/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
-```
-
-All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed or are contained in the `spice_up`-venv on the jetson. To source it run:
-```
-source /home/jau/spice_up/bin/activate  
-```
-The `spice_up`-venv contains the following packages:
-* trimesh
-* easyocr
-
 ## Launch files
 There is only one launch file: `all.launch`.   
 It launches the following parameter files:  
@@ -146,6 +125,28 @@ And the following nodes:
 Specifically, the following services are launched:  
 * `idx_finder_server` 
 * `spice_up_action_server` 
+
+### Pythonpath + source venv
+Doing `roslaunch spice_up_coordinator all.launch` on the jetson results in an error saying that certain sub-modules (e.g poseProcessor.py) cannot be found. To fix this do the following on the jetson:
+```
+export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scripts/  
+export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
+export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
+
+```
+To reset the PYTHONPATH to what it was prior to this operation run:
+```
+export PYTHONPATH=/home/jau/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
+```
+
+All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
+```
+source /home/<username>/spice_up/bin/activate  
+```
+The `spice_up`-venv contains the following packages:
+* trimesh
+* easyocr
+
 
 ## Overview
 The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
