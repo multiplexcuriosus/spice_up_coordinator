@@ -107,7 +107,7 @@ This will only work if you commit the changes made to setup.py.
 pip install -e .
 ```
 8. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
-9. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundationpose_ros/models/sam`
+9. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
 10. Clone the rqt plugin into `catkin_ws/src`: with `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
 11. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
 12. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
