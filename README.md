@@ -15,7 +15,7 @@ This ReadMe is structured into:
 3. VENV
 * Create a new venv with `python -m venv /path/to/new/virtual/environment`.
 * Source it with `source /path/to/new/virtual/environment/bin/activate `
-* Install requirements file with `pip install requirements.txt`
+* Install requirements file with `pip install -r requirements.txt`
 ### OPC
 Install ROS and setup catkin_ws:  
 1.Install ros and setup catkin workspace
