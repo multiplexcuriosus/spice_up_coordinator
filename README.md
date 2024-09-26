@@ -4,7 +4,7 @@ This ReadMe is structured into:
 * Setup
 * Launch
 * Overview
-* Specific modules
+* SpiceUPCoordinator  submodules description
 
 ## Installation
 ### Jetson
