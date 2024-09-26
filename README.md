@@ -138,7 +138,7 @@ To reset the PYTHONPATH to what it was prior to this operation run:
 ```
 export PYTHONPATH=/home/jau/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
 ```
-
+### Existing venv on Carmen's account
 All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
 ```
 source /home/<username>/spice_up/bin/activate  
