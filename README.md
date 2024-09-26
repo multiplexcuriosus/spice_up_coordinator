@@ -101,7 +101,9 @@ catkin build spice_selection_gui -DPYTHON_EXECUTABLE=/usr/bin/python3
 ```
 
 ### Usage errors
-If you encounter `PermissionError: [Errno 13] Permission denied: '/tmp/material_0.png'` then do:
+
+Error: `PermissionError: [Errno 13] Permission denied: '/tmp/material_0.png'`  
+Solution:  
 ```
 sudo rm /tmp/material_0.png
 sudo rm /tmp/material.mtl
