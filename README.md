@@ -25,7 +25,7 @@ The activity indicated at one end of an arrow always stems from the node at the 
 
 ## Coordinate frame overview
 
-**In this ReadMe as well as in the code, the following notation is used: T_ab stands for the 4x4 homogenours transformation matrix which contains the rotation and translation from a-frame to b-frame.**
+**In this ReadMe as well as in the code, the following notation is used: T_ab stands for the 4x4 homogeneous transformation matrix which contains the rotation and translation from a-frame to b-frame.**
 
 ### Anchor-frame (fancy A) and S_hat
 ![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)  
