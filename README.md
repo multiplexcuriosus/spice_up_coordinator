@@ -8,10 +8,9 @@ This ReadMe is structured into:
 
 ## Installation
 
-### ROS & catkin_ws setup on jetson and opc 
+### ROS & catkin_ws setup on jetson
 * Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
 * Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (not sure if necessary).  
-
 
 ### Jetson
 1. Clone the spice_up_coordinator and idx_finder package into the jetson catkin_ws/src:
@@ -31,12 +30,7 @@ source /path/to/new/virtual/environment/bin/activate
 cd ~/ros/catkin_ws/src/spice_up_coordinator/
 pip install -r requirements.txt
 ```
-Error: `PermissionError: [Errno 13] Permission denied: '/tmp/material_0.png'`  
-Solution:  
-```
-sudo rm /tmp/material_0.png
-sudo rm /tmp/material.mtl
-```
+
 
 ## Setup
 ### Params  
