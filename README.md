@@ -35,13 +35,17 @@ pip install -r requirements.txt
 Install Foundationpose:  
 1. Install conda or mamba
 **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
-Install:  
-* cuda toolkit: `mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0`  
-* cuda runtime: `mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0`  
-. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`
-2. cd into the Foundationpose directory   
+3. Install cuda toolkit & runtime:  
+```
+mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0
+mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0
+```
+4. Choose an appropriate location to store the leggedrobotics foundationpose fork, clone it and cd into it:
+```
+git clone https://github.com/leggedrobotics/FoundationPose.git`
+cd Foundationpose
+```
 3. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
-
 ```
 # create conda environment
 conda create -n foundationpose python=3.9 
