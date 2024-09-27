@@ -145,11 +145,11 @@ It launches the following parameter files:
 * `spice_up_coordinator.yaml`  <br />
 
 And the following nodes:  
-* `index_finder`
+* `idx_finder`
 * `spice_up_coordination`  <br />
 
 Specifically, the following services are launched:  
-* `idx_finder_server` 
+* `index_finder_server` 
 * `spice_up_action_server` 
 
 ### Pythonpath + source venv
