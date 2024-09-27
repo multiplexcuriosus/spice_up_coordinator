@@ -7,6 +7,12 @@ This ReadMe is structured into:
 * SpiceUpCoordinator submodules description
 
 ## Installation
+
+### ROS & catkin_ws setup on jetson and opc 
+* Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
+* Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (not sure if necessary).  
+
+
 ### Jetson
 1. Git clone the following repos into the jetson catkin_ws/src:
 * spice_up_coordinator (this repo): `git clone https://github.com/multiplexcuriosus/spice_up_coordinator.git`
@@ -17,13 +23,8 @@ This ReadMe is structured into:
 * Source it with `source /path/to/new/virtual/environment/bin/activate `
 * Install requirements file with `pip install -r requirements.txt`
 ### OPC
-Install ROS and setup catkin_ws:  
-
-* Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
-* Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).  
 
 Install Foundationpose:  
-
 1. Install conda or mamba
 **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 Install:  
