@@ -31,7 +31,7 @@ The activity indicated at one end of an arrow always stems from the node at the 
 The Foundationpose-estimator returns the pose from the camera to a certain point (incl.orientation) of the shelf, to which this ReadMe will refer as anchor-frame. With help of the `trimesh` package a pose is generated from this anchor frame to the origin of the shelf, which is the center point of the shelf model. This origin-frame is refered to as shelf-frame (S_hat in the image).  
 
 ### E-Frame
-There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by the Foundationpose-estimator. Thus there are also four possible orientations, of the S_hat frame, given to us by the Foundationpose-estimator. 
+There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by the Foundationpose-estimator. Thus there are also four possible orientations of the S_hat frame, given to us by the Foundationpose-estimator. 
 For the narrow shelf it will be two possible rotations. 
 
 In order to have a reliable reference coordinate frame, the following is done.
