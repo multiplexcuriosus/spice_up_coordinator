@@ -18,20 +18,20 @@ The spice_up_coordinator is the interface between the spiceUpAutomationModule an
 Additionally, the spice_up_coordinator contains the poseProcessor module, which creates the E-Frame (defined below) and generates the candidate grasp and drop off poses.
 ## Information flow
 This diagram depicts the relation between the spice_up_coordinator and the mentioned nodes.
-![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)
+![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)  
 The numbers indicate the sequence of the events and the colors the nodes which are either requesting or responding.
 The activity indicated at one end of an arrow always stems from the node at the other end of the arrow. 
 
-## Overview over different coordinate frames
-### Anchor-frame (fancy A) and shelf-frame (S_hat)
-![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)
-The Foundationpose-estimator returns the pose from the camera to a certain point (incl.orientation) of the shelf, to which this ReadMe will refer as anchor-frame. With help of the `trimesh` package a pose is generated from this anchor frame to the origin of the shelf, which is the center point of the shelf model. This origin-frame is refered to as shelf-frame. The `pose_est_server` thus returns the pose from the camera to the shelf-frame.
 
+## Coordinate frame overview
 
+### Anchor-frame (fancy A) and S_hat
+![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)  
 
-The poseProcessor constructs the E-frame, the four grasp-poses and the two dropoff-poses.
+The Foundationpose-estimator returns the pose from the camera to a certain point (incl.orientation) of the shelf, to which this ReadMe will refer as anchor-frame. With help of the `trimesh` package a pose is generated from this anchor frame to the origin of the shelf, which is the center point of the shelf model. This origin-frame is refered to as shelf-frame (S_hat in the image).  
+
 ### E-Frame
-There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by foundationpose's pose estimate.
+There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by foundationpose's pose estimate. Thus there are also four possible orientations, of the S_hat frame, given to us by the Foundationpose-estimator. 
 For the narrow shelf it will be two possible rotations. 
 
 In order to have a reliable reference coordinate frame, the following is done.
@@ -44,14 +44,19 @@ In order to have a reliable reference coordinate frame, the following is done.
 5. The E-frame is defined as follows:
 * X-Axis: unit_vector_EF
 * Y-Axis: unit_vector_ED
-* Z-Axis: unit_vector_EG
+* Z-Axis: unit_vector_EG  
 
- ### Aligning grasp poses with B-frame
- Currently the rotation of the four graspposes is the same as in E-frame. 
- This is not ideal, it would be better if the z-axis of the grasp pose was colinear with the vector connecting the anymal base-frame and the G-frame.
+From the E-frame, we can construct the S-frame, which consists of the S_hat-frame-position and the E-frame-rotation. **However, this S-frame is irrelevant, since the `pose_est_server` returns the pose from the camera to the E-frame.**
+
+### M-frame
+In the poseProcessor-module, an additional frame called M-frame is defined. More specifically, there are four M-frames (M0,M1,M2,M3), one for each bottle.
+The M_i - position corresponds to the translation from the E-frame-origin to the center of the contact cicle between each spice bottles bottom plane and the shelf. I.e the center point on which each bottle stands. The rotation of all M_i frames is the same as the E-frame.
+
+
+## Aligning grasp poses with B-frame
+Currently the rotation of the four graspposes is the same as in E-frame. 
+This is not ideal, it would be better if the z-axis of the grasp pose was colinear with the vector connecting the anymal base-frame and the G-frame.
  
- **Note: In the poseprocessor, there is an additional frame called M-frame**. More specifically, there are four M-frames (M0,M1,M2,M3), one for each bottle.
- The M_i - pose corresponds to the center of the contact cicle between each spice bottles bottom plane and the shelf. I.e the center point on which each bottle stands. The rotation of all M_i frames is the same as the E-frame.
 
  I propose the following solution to achieve the alignment:
 ![sa_slide_extraction-9](https://github.com/user-attachments/assets/8a267513-53c5-4066-97de-b190edb70b41)
@@ -75,7 +80,7 @@ This algorithm is implemented in the poseProcessor under `compute_grasp_pose_ali
 
 Note that the resulting grasp pose orientation is not yet aligned with the one from the gripper in the simulation.
 
-
+The poseProcessor constructs the E-frame, the four grasp-poses and the two dropoff-poses.
 ## Installation (on jetson)
 
 ### ROS & catkin_ws setup
