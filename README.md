@@ -146,7 +146,7 @@ It launches the following parameter files:
 
 And the following nodes:  
 * `idx_finder`
-* `spice_up_coordination`  <br />
+* `spice_up_coordinator`  <br />
 
 Specifically, the following services are launched:  
 * `index_finder_server` 
