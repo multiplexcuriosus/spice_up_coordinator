@@ -23,6 +23,7 @@ The numbers indicate the sequence of the events and the colors the nodes which a
 The activity indicated at one of an arrow always stems from the node at the other end of the error. 
 
 ## PoseProcessor
+The poseProcessor constructs the E-frame, the four grasp-poses and the two dropoff-poses.
 ### E-Frame
 There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by foundationpose's pose estimate.
 For the narrow shelf it will be two possible rotations. 
