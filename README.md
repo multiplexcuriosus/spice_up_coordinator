@@ -35,8 +35,8 @@ pip install -r requirements.txt
 
 Install Foundationpose:  
 1. Install conda or mamba  
-**Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 2. Install cuda toolkit & runtime:  
+**Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 ```
 mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0
 mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0
