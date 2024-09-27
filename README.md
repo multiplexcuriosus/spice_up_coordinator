@@ -101,7 +101,7 @@ git checkout feature/realsense
 ```
 This will only work if you commit the changes made to setup.py.  
 
-6. cd into the Foundationpose directory and install the module into the venv with: 
+6. In the Foundationpose directory, install the module into the venv with: 
 ```
 pip install -e .
 ```
