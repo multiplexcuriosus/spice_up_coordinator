@@ -6,7 +6,8 @@ This ReadMe is structured into:
 * **Configuration** (spice_up_coordinator + idx_finder)
 * **Setup** (spice_up_coordinator + idx_finder)
 * **Launch** (spice_up_coordinator + idx_finder)
-* **Testing** 
+* **Testing**
+* **Quick-start** 
 
 ## SpiceUp Ros Network Overview
 The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
@@ -136,16 +137,6 @@ roslaunch spice_up_coordinator all.launch
 ```
 Now the jetson-side of the pipline is ready.  
 
-### Quick start: Existing venv on Carmen's account
-All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed on the jetson or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
-```
-source /home/<username>/spice_up/bin/activate  
-```
-
-The `spice_up`-venv contains the following packages:
-* trimesh
-* easyocr
-
 ## Testing
 ### Entire pipeline
 The whole pipeline (as described by steps 1-8 under Information flow) can be tested by running:  
@@ -161,6 +152,17 @@ rosrun spice_up_coordinator spice_up_action_client.py # Terminal 2
 
 * This will send an actionGoal to the spice_up_coordinator node
 * This requires color-imgs,depth-imgs and intrinsics-infos to be published in the ros-network. Ideally on the same machine as the spice_up_coordinator is running, in order to keep the streams from congesting the network.
+
+
+### Quick start: Existing venv on Carmen's account
+All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed on the jetson or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
+```
+source /home/<username>/spice_up/bin/activate  
+```
+
+The `spice_up`-venv contains the following packages:
+* trimesh
+* easyocr
 
 
 
