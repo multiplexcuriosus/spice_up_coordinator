@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 Install Foundationpose:  
 1. Install conda or mamba  
-2. Setup the conda environment (based on instructions [here](https://github.com/leggedrobotics/foundation_pose_ros)
+2. Setup the conda environment (based on instructions [here](https://github.com/leggedrobotics/foundation_pose_ros))
 ```
 # create conda environment
 conda create -n foundationpose python=3.9 
