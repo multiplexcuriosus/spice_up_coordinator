@@ -25,6 +25,8 @@ The activity indicated at one end of an arrow always stems from the node at the 
 
 ## Coordinate frame overview
 
+**In this ReadMe as well as in the code, the following notation is used: T_ab stands for the 4x4 homogenours transformation matrix which contains the rotation and translation from a-frame to b-frame.**
+
 ### Anchor-frame (fancy A) and S_hat
 ![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)  
 
@@ -52,12 +54,13 @@ From the E-frame, we can construct the S-frame, which consists of the S_hat-fram
 In the poseProcessor-module, an additional frame called M-frame is defined. More specifically, there are four M-frames (M0,M1,M2,M3), one for each bottle.
 The M_i - position corresponds to the translation from the E-frame-origin to the center of the contact cicle between each spice bottles bottom plane and the shelf. I.e the center point on which each bottle stands. The rotation of all M_i frames is the same as the E-frame.
 
+## poseProcessor
+The poseProcessor converts the T_cs pose to the T_ce pose.
 
 ## Aligning grasp poses with B-frame
 Currently the rotation of the four graspposes is the same as in E-frame. 
 This is not ideal, it would be better if the z-axis of the grasp pose was colinear with the vector connecting the anymal base-frame and the G-frame.
  
-
  I propose the following solution to achieve the alignment:
 ![sa_slide_extraction-9](https://github.com/user-attachments/assets/8a267513-53c5-4066-97de-b190edb70b41)
 Legend:
