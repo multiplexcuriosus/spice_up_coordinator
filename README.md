@@ -138,7 +138,23 @@ In `foundation_pose_ros/config/pose_detector.yaml`:
 * Set `spice_up_coordinator/mesh_file`
 * Set `spice_up_coordinator/username`
 
-## Launch files
+### PYTHONPATH 
+In order for the submodules of the idx_finder and the spice_up_coordinator to be available when launch the nodes, the following has to be done:
+```
+export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scripts/  
+export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
+```
+### Venv
+
+export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
+
+To reset the PYTHONPATH to what it was prior to this operation run:
+```
+export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
+```
+
+
+## Launch 
 There is only one launch file: `all.launch`.   
 It launches the following parameter files:  
 * `index_finder.yaml`
@@ -150,19 +166,11 @@ And the following nodes:
 
 Specifically, the following services are launched:  
 * `index_finder_server` 
-* `spice_up_action_server` 
+* `spice_up_action_server`   
 
-### Pythonpath + source venv
-Doing `roslaunch spice_up_coordinator all.launch` on the jetson results in an error saying that certain sub-modules (e.g poseProcessor.py) cannot be found. To fix this do the following on the jetson:
+Launch with:
 ```
-export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scripts/  
-export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
-export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
-
-```
-To reset the PYTHONPATH to what it was prior to this operation run:
-```
-export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
+roslaunch foundation_pose_ros all.launch
 ```
 
 ### Quick start: Existing venv on Carmen's account
