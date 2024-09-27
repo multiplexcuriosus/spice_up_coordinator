@@ -23,8 +23,11 @@ The numbers indicate the sequence of the events and the colors the nodes which a
 The activity indicated at one end of an arrow always stems from the node at the other end of the arrow. 
 
 ## Overview over different coordinate frames
-### A-frame
+### Anchor-frame (fancy A) and shelf-frame (S_hat)
 ![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)
+The Foundationpose-estimator returns the pose from the camera to a certain point (incl.orientation) of the shelf, to which this ReadMe will refer as anchor-frame. With help of the `trimesh` package a pose is generated from this anchor frame to the origin of the shelf, which is the center point of the shelf model. This origin-frame is refered to as shelf-frame. The `pose_est_server` thus returns the pose from the camera to the shelf-frame.
+
+
 
 The poseProcessor constructs the E-frame, the four grasp-poses and the two dropoff-poses.
 ### E-Frame
