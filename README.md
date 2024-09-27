@@ -1,6 +1,6 @@
 # The spice_up_coordinator node
 This ReadMe is structured into:
-* **Overview** (SpiceUp Ros Network)
+* **SpiceUp Ros Network Overview** 
 * **Coordinate frame overview**
 * **Installation** (spice_up_coordinator + idx_finder)
 * **Configuration** (spice_up_coordinator + idx_finder)
