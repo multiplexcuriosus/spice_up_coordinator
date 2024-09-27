@@ -59,18 +59,17 @@ export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages
 ```
 
 ## Launch 
-There is only one launch file: `all.launch`.   
-It launches the following parameter files:  
-* `index_finder.yaml`
-* `spice_up_coordinator.yaml`  <br />
-
-And the following nodes:  
-* `idx_finder`
-* `spice_up_coordinator`  <br />
-
-Specifically, the following services are launched:  
-* `index_finder_server` 
-* `spice_up_action_server`   
+There is only one launch file: `all.launch`. 
+It launches:
+* the parameter files:  
+  * `index_finder.yaml`
+  * `spice_up_coordinator.yaml`  
+* the nodes:
+  * `idx_finder`
+  * `spice_up_coordinator` 
+* the services:  
+  * `index_finder_server` 
+  * `spice_up_action_server`   
 
 Launch with:
 ```
