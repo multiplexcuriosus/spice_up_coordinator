@@ -88,7 +88,7 @@ The `spice_up`-venv contains the following packages:
 
 ## Testing
 ### Entire pipeline
-The whole pipeline (as described by steps 1-8 under Information flow) can be tested by running:
+The whole pipeline (as described by steps 1-8 under Information flow) can be tested by running:  
 On jetson:  
 ```
 roslaunch spice_up_coordinator all.launch # Terminal 1
