@@ -33,7 +33,7 @@ pip install -r requirements.txt
 ### OPC
 
 Install Foundationpose:  
-1. Install conda or mamba
+1. Install conda or mamba  
 **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 3. Install cuda toolkit & runtime:  
 ```
