@@ -1,8 +1,10 @@
 # The spice_up_coordinator node
 This ReadMe is structured into:
 * **Installation** (spice_up_coordinator + idx_finder)
+* **Configuration** (spice_up_coordinator + idx_finder)
 * **Setup** (spice_up_coordinator + idx_finder)
 * **Launch** (spice_up_coordinator + idx_finder)
+* **Testing** 
 * **Overview** (SpiceUp Ros Network)
 * **PoseProcessor**
 
@@ -32,12 +34,14 @@ pip install -r requirements.txt
 ```
 
 
-## Setup
+## Configuration
 ### Params  
 In `idx_finder/config/index_finder.yaml`: Set `index_finder/HOME`  
 In `foundation_pose_ros/config/pose_detector.yaml`: 
 * Set `spice_up_coordinator/mesh_file`
 * Set `spice_up_coordinator/username`
+
+## Setup
 
 ### PYTHONPATH 
 In order for the submodules of the idx_finder and the spice_up_coordinator to be available when launch the nodes, the following has to be done:
@@ -54,7 +58,6 @@ To reset the PYTHONPATH to what it was prior to this operation run:
 ```
 export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
 ```
-
 
 ## Launch 
 There is only one launch file: `all.launch`.   
@@ -84,6 +87,14 @@ source /home/<username>/spice_up/bin/activate
 The `spice_up`-venv contains the following packages:
 * trimesh
 * easyocr
+
+## Testing
+The whole pipeline (as described by steps 1-8 below) can be tested by running:
+```
+rosrun spice_up_coordinator spice_up_action_client.py
+```
+* This will send an actionGoal to the spice_up_coordinator node
+* This requires color-imgs,depth-imgs and intrinsics-infos to be published in the ros-network. Ideally on the same machine as the spice_up_coordinator is running, in order to keep the streams from congesting the network.
 
 ## SpiceUp Ros Network Overview
 The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
