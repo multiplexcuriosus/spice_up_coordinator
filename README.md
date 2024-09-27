@@ -3,8 +3,8 @@ This ReadMe is structured into:
 * Installation
 * Setup
 * Launch
-* Overview
-* SpiceUpCoordinator  submodules description
+* SpiceUp-Challenge Ros Overview
+* SpiceUpCoordinator submodules description
 
 ## Installation
 ### Jetson
@@ -18,20 +18,20 @@ This ReadMe is structured into:
 * Install requirements file with `pip install -r requirements.txt`
 ### OPC
 Install ROS and setup catkin_ws:  
-1.Install ros and setup catkin workspace
+
 * Go to [here](https://bitbucket.org/leggedrobotics/anymal_rsl/wiki/Simulation%20PC%20and%20OPC%20Setup%20-%20Release%20%2223.04%22) and do: Setup release: Steps 1-2.5.2 (not sure if necessary)
 * Go to [here](https://bitbucket.org/leggedrobotics/alma_rsl/src/main/) and do everything up to step 3.1 (for step 3.1, use sim) (this step I mainly do to create the catkin_ws, probably a huge overkill).  
 
 Install Foundationpose:  
 
-2. Install conda or mamba
-3. **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
+1. Install conda or mamba
+**Very important: do not install anything cuda related that has a version number not equal to 11.8**  
 Install:  
 * cuda toolkit: `mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0`  
 * cuda runtime: `mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0`  
-3. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`
-4. cd into the Foundationpose directory   
-5. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
+. Choose an appropriate location to store the leggedrobotics foundationpose fork and clone it with `git clone https://github.com/leggedrobotics/FoundationPose.git`
+2. cd into the Foundationpose directory   
+3. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
 
 ```
 # create conda environment
@@ -78,21 +78,21 @@ In `/FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py` edit the `include
 **Building the extensions succeeded if you see: "Successfully installed common".**
 
 
-6. Switch to the branch feature/realsense  with:
+4. Switch to the branch feature/realsense  with:
 ```
 git checkout feature/realsense
 ```
 This will only work if you commit the changes made to setup.py.  
 
-7. cd into the Foundationpose directory and install the module into the venv with: 
+5. cd into the Foundationpose directory and install the module into the venv with: 
 ```
 pip install -e .
 ```
-8. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
-9. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
-10. Clone the rqt plugin into `catkin_ws/src`: with `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
-11. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
-12. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
+6. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
+7. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
+8. Clone the rqt plugin into `catkin_ws/src`: with `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
+9. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
+10. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
 
 If you run into this error:  `  Unable to find either executable 'empy' or Python module 'em'...  try installing the package 'python3-empy'` then do:
 ```
