@@ -108,7 +108,7 @@ pip install -e .
 git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
 ```
 8. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
-9. Clone the rqt plugin into `catkin_ws/src`: with:
+9. Clone the rqt plugin into `catkin_ws/src` with:
 ```
 git clone https://github.com/multiplexcuriosus/spice_selection_gui.git
 ```
