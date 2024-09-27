@@ -1,10 +1,10 @@
 # The spice_up_coordinator node
 This ReadMe is structured into:
-* spice_up_coordinator + idx_finder: Installation
-* spice_up_coordinator + idx_finder: Setup
-* spice_up_coordinator + idx_finder: Launch
-* SpiceUp-Challenge Ros Overview
-* SpiceUpCoordinator submodules description
+* Installation (spice_up_coordinator + idx_finder)
+* Setup (spice_up_coordinator + idx_finder)
+* Launch (spice_up_coordinator + idx_finder)
+* SpiceUp Ros Network Overview
+* SpiceUpCoordinator submodules
 
 ## Installation
 
@@ -176,7 +176,7 @@ The `spice_up`-venv contains the following packages:
 * trimesh
 * easyocr
 
-## Overview
+## SpiceUp Ros Network Overview
 The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
 * `idx_finder`
 * `foundation_pose_ros`
