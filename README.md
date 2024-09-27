@@ -95,7 +95,7 @@ The `CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/
 "Successfully installed common" being displayed in the terminal.
 
 
-5. Switch to the branch feature/realsense  with:
+5. In the Founationpose directory, switch to the branch feature/realsense  with:
 ```
 git checkout feature/realsense
 ```
