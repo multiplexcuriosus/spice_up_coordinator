@@ -4,7 +4,6 @@ This ReadMe is structured into:
 * **Setup** (spice_up_coordinator + idx_finder)
 * **Launch** (spice_up_coordinator + idx_finder)
 * **Overview** (SpiceUp Ros Network)
-* **E-Frame**
 * **PoseProcessor**
 
 ## Installation
