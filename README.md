@@ -133,8 +133,11 @@ sudo rm /tmp/material.mtl
 ```
 
 ## Setup
-### params
-In the `foundation_pose_ros/config/pose_detector.yaml` file set the right mesh_file path.  
+### Params  
+In `idx_finder/config/index_finder.yaml`: Set `index_finder/HOME`
+In `foundation_pose_ros/config/pose_detector.yaml`: 
+* Set `spice_up_coordinator/mesh_file`
+* Set `spice_up_coordinator/username`
 
 ## Launch files
 There is only one launch file: `all.launch`.   
@@ -162,15 +165,16 @@ To reset the PYTHONPATH to what it was prior to this operation run:
 ```
 export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
 ```
-### Existing venv on Carmen's account
-All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
+
+### Quick start: Existing venv on Carmen's account
+All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed on the jetson or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
 ```
 source /home/<username>/spice_up/bin/activate  
 ```
+
 The `spice_up`-venv contains the following packages:
 * trimesh
 * easyocr
-
 
 ## Overview
 The spice_up_coordinator is the interface between the spiceUpAutomationModule and the following nodes:
