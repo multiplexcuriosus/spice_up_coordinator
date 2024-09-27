@@ -89,7 +89,7 @@ The `spice_up`-venv contains the following packages:
 * easyocr
 
 ## Testing
-The whole pipeline (as described by steps 1-8 below) can be tested by running:
+The whole pipeline (as described by steps 1-8 under Information flow) can be tested by running:
 ```
 rosrun spice_up_coordinator spice_up_action_client.py
 ```
