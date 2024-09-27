@@ -89,15 +89,16 @@ The `spice_up`-venv contains the following packages:
 ## Testing
 ### Entire pipeline
 The whole pipeline (as described by steps 1-8 under Information flow) can be tested by running:  
+On opc:    
+```
+roslaunch foundation_pose_ros only_estimate.launch 
+```
 On jetson:  
 ```
 roslaunch spice_up_coordinator all.launch # Terminal 1
 rosrun spice_up_coordinator spice_up_action_client.py # Terminal 2
 ```
-On opc:  
-```
-roslaunch foundation_pose_ros only_estimate.launch 
-```
+
 * This will send an actionGoal to the spice_up_coordinator node
 * This requires color-imgs,depth-imgs and intrinsics-infos to be published in the ros-network. Ideally on the same machine as the spice_up_coordinator is running, in order to keep the streams from congesting the network.
 
