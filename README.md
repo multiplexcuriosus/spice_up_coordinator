@@ -1,8 +1,8 @@
 # The spice_up_coordinator node
 This ReadMe is structured into:
-* Installation
-* Setup
-* Launch
+* spice_up_coordinator + idx_finder: Installation
+* spice_up_coordinator + idx_finder: Setup
+* spice_up_coordinator + idx_finder: Launch
 * SpiceUp-Challenge Ros Overview
 * SpiceUpCoordinator submodules description
 
