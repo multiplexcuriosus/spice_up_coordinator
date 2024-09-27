@@ -20,7 +20,7 @@ Additionally, the spice_up_coordinator contains the poseProcessor module, which 
 This diagram depicts the relation between the spice_up_coordinator and the mentioned nodes.
 ![spice_up_nodes](https://github.com/user-attachments/assets/94ca1baa-e273-4804-a574-ece3452ac3f9)
 The numbers indicate the sequence of the events and the colors the nodes which are either requesting or responding.
-The activity indicated at one of an arrow always stems from the node at the other end of the error. 
+The activity indicated at one end of an arrow always stems from the node at the other end of the error. 
 
 ## PoseProcessor
 The poseProcessor constructs the E-frame, the four grasp-poses and the two dropoff-poses.
