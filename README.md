@@ -72,8 +72,9 @@ There is only one launch file: `all.launch`. It launches:
 
 Launch with:
 ```
-roslaunch foundation_pose_ros all.launch
+roslaunch spice_up_coordinator all.launch
 ```
+Now the jetson-side of the pipline is ready.  
 
 ### Quick start: Existing venv on Carmen's account
 All packages required to run launch the `idx_finder` & `spice_up_coordinator` nodes with the `all.launch` launch-file are either already installed on the jetson or are contained in the `spice_up`-venv on the jetson (carmen's account). To source it run:
