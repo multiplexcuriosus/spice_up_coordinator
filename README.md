@@ -28,6 +28,7 @@ catkin build idx_finder
 ```
 python -m venv /path/to/new/virtual/environment
 source /path/to/new/virtual/environment/bin/activate
+cd ~/ros/catkin_ws/src/spice_up_coordinator/
 pip install -r requirements.txt
 ```
 ### OPC
