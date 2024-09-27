@@ -134,7 +134,7 @@ sudo rm /tmp/material.mtl
 
 ## Setup
 ### Params  
-In `idx_finder/config/index_finder.yaml`: Set `index_finder/HOME`
+In `idx_finder/config/index_finder.yaml`: Set `index_finder/HOME`  
 In `foundation_pose_ros/config/pose_detector.yaml`: 
 * Set `spice_up_coordinator/mesh_file`
 * Set `spice_up_coordinator/username`
