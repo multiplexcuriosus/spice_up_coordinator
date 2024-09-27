@@ -14,14 +14,22 @@ This ReadMe is structured into:
 
 
 ### Jetson
-1. Git clone the following repos into the jetson catkin_ws/src:
-* spice_up_coordinator (this repo): `git clone https://github.com/multiplexcuriosus/spice_up_coordinator.git`
-* idx_finder: `git clone https://github.com/multiplexcuriosus/idx_finder.git`
-2. catkin build `spice_up_coordinator` and `idx_finder`
-3. VENV
-* Create a new venv with `python -m venv /path/to/new/virtual/environment`.
-* Source it with `source /path/to/new/virtual/environment/bin/activate `
-* Install requirements file with `pip install -r requirements.txt`
+1. Clone the spice_up_coordinator and idx_finder package into the jetson catkin_ws/src:
+```
+git clone https://github.com/multiplexcuriosus/spice_up_coordinator.git
+git clone https://github.com/multiplexcuriosus/idx_finder.git
+```
+2. Build them:
+```
+catkin build spice_up_coordinator 
+catkin build idx_finder
+```
+4. Create venv & install requirements
+```
+python -m venv /path/to/new/virtual/environment
+source /path/to/new/virtual/environment/bin/activate
+pip install -r requirements.txt
+```
 ### OPC
 
 Install Foundationpose:  
