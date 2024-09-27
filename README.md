@@ -80,7 +80,7 @@ mkdir /home/<username>/miniforge3/envs/foundationpose/lib64
 cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 
 ```
 
-Error:`RuntimeError: Error compiling objects for extension`  
+Error:`RuntimeError: Error compiling objects for extension` or other `eigen3` related problems  
 Solution: 
 In `/FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py` edit the `include_dirs` as follows:
 ```
