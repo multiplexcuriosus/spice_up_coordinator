@@ -59,8 +59,7 @@ export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages
 ```
 
 ## Launch 
-There is only one launch file: `all.launch`. 
-It launches:
+There is only one launch file: `all.launch`. It launches:
 * the parameter files:  
   * `index_finder.yaml`
   * `spice_up_coordinator.yaml`  
