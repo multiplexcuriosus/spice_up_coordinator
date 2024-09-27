@@ -39,7 +39,7 @@ For the narrow shelf it will be two possible rotations.
 In order to have a reliable reference coordinate frame, the following is done.
 <img src="https://github.com/user-attachments/assets/d405b2dc-6dc7-411d-877c-1d651fd5fcca" width=50% height=50%>
 
-1. From the returned pose estimate, all 3D corner positions are identified.
+1. From the shelf corners in S_hat-frame, all 3D corner positions are identified.
 2. Based on the C-frame x-axis, all corners are separated into a left group (L) and a right group (R) --> blue and red in the image above
 3. For the L-group, the closest corner to the camera is defined as H-corner, the farthest the J-corner. Analogously for the right group with F and G
 4. For the L-group A is defined as the corner in {A,D} which is closest to H and D as the other one from {A,D}. Analogously for the R-group with E & I. Now all corners from the the initial pose estimate are well defined.
