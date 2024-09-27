@@ -49,7 +49,7 @@ export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scri
 export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
 ```
 ### Venv
-For the packages installed in the above mentioned venv, the venv must be added to the PYTHONPATH with:  
+For the packages installed in the above mentioned venv to be found, the venv must be added to the PYTHONPATH with:  
 ```
 export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
 ```
