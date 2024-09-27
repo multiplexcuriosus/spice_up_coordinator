@@ -103,26 +103,35 @@ This will only work if you commit the changes made to setup.py.
 ```
 pip install -e .
 ```
-6. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with: `git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
+6. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with:
+```
+git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
+```
 7. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
-8. Clone the rqt plugin into `catkin_ws/src`: with `git clone https://github.com/multiplexcuriosus/spice_selection_gui.git`
+8. Clone the rqt plugin into `catkin_ws/src`: with:
+```
+git clone https://github.com/multiplexcuriosus/spice_selection_gui.git
+```
 9. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
-10. catkin build the `foundation_pose_ros` & the `spice_selection_gui` packages.  
-
-If you run into this error:  `  Unable to find either executable 'empy' or Python module 'em'...  try installing the package 'python3-empy'` then do:
+11. Build the `foundation_pose_ros` & the `spice_selection_gui` packages with:
+```
+catkin build foundation_pose_ros
+catkin build spice_selection_gui
+```  
+### Troubleshooting 
+Error: `Unable to find either executable 'empy' or Python module 'em'...  try installing the package 'python3-empy'`   
+Solution:  
 ```
 catkin build foundation_pose_ros -DPYTHON_EXECUTABLE=/usr/bin/python3
 catkin build spice_selection_gui -DPYTHON_EXECUTABLE=/usr/bin/python3
-```
-
-### Usage errors
-
+```  
 Error: `PermissionError: [Errno 13] Permission denied: '/tmp/material_0.png'`  
 Solution:  
 ```
 sudo rm /tmp/material_0.png
 sudo rm /tmp/material.mtl
 ```
+
 ## Setup
 ### params
 In the `foundation_pose_ros/config/pose_detector.yaml` file set the right mesh_file path.  
