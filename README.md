@@ -27,7 +27,7 @@ The activity indicated at one end of an arrow always stems from the node at the 
 
 **In this ReadMe as well as in the code, the following notation is used: T_ab stands for the 4x4 homogeneous transformation matrix which contains the rotation and translation from a-frame to b-frame.**
 
-### Anchor-frame (fancy A) and S_hat
+### Anchor-frame (fancy A) and shelf-origin-frame (S_hat)
 ![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)  
 
 The Foundationpose-estimator returns the pose from the camera to a certain point (incl.orientation) of the shelf, to which this ReadMe will refer as anchor-frame. With help of the `trimesh` package a pose is generated from this anchor frame to the origin of the shelf, which is the center point of the shelf model. This origin-frame is refered to as shelf-frame (S_hat in the image).  
