@@ -105,7 +105,7 @@ pip install -e .
 6. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
 7. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with:
 ```
-git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
+git clone https://github.com/multiplexcuriosus/foundation_pose_ros.git`
 ```
 8. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
 9. Clone the rqt plugin into `catkin_ws/src` with:
