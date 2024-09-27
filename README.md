@@ -24,7 +24,7 @@ git clone https://github.com/multiplexcuriosus/idx_finder.git
 catkin build spice_up_coordinator 
 catkin build idx_finder
 ```
-4. Create venv & install requirements
+3. Create venv & install requirements
 ```
 python -m venv /path/to/new/virtual/environment
 source /path/to/new/virtual/environment/bin/activate
@@ -35,17 +35,17 @@ pip install -r requirements.txt
 Install Foundationpose:  
 1. Install conda or mamba  
 **Very important: do not install anything cuda related that has a version number not equal to 11.8**  
-3. Install cuda toolkit & runtime:  
+2. Install cuda toolkit & runtime:  
 ```
 mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0
 mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0
 ```
-4. Choose an appropriate location to store the leggedrobotics foundationpose fork, clone it and cd into it:
+3. Choose an appropriate location to store the leggedrobotics foundationpose fork, clone it and cd into it:
 ```
 git clone https://github.com/leggedrobotics/FoundationPose.git`
 cd Foundationpose
 ```
-3. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
+4. Follow the instructions [here](https://github.com/leggedrobotics/foundation_pose_ros) to setup the leggedrobotics foundationpose ros wrapper. For your convenience, the steps are copied (and where possible shortened & commented) here:
 ```
 # create conda environment
 conda create -n foundationpose python=3.9 
@@ -93,26 +93,26 @@ In `/FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py` edit the `include
 **Building the extensions succeeded if you see: "Successfully installed common".**
 
 
-4. Switch to the branch feature/realsense  with:
+5. Switch to the branch feature/realsense  with:
 ```
 git checkout feature/realsense
 ```
 This will only work if you commit the changes made to setup.py.  
 
-5. cd into the Foundationpose directory and install the module into the venv with: 
+6. cd into the Foundationpose directory and install the module into the venv with: 
 ```
 pip install -e .
 ```
-6. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with:
+7. Clone Jaú's fork of the foundationpose wrapper into `catkin_ws/src` with:
 ```
 git clone https://github.com/multiplexcuriosus/foundationpose_ros.git`
 ```
-7. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
-8. Clone the rqt plugin into `catkin_ws/src`: with:
+8. Follow steps 3-5 [here](https://github.com/leggedrobotics/foundation_pose_ros). For step 4: Put the SAM weights into `foundation_pose_ros/models/sam`
+9. Clone the rqt plugin into `catkin_ws/src`: with:
 ```
 git clone https://github.com/multiplexcuriosus/spice_selection_gui.git
 ```
-9. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
+10. Download the foundationpose model weigths from [here](https://drive.google.com/drive/folders/1DFezOAD0oD1BblsXVxqDsl8fj0qzB82i) and put them into `Foundationpose/foundation_pose/weights`.
 11. Build the `foundation_pose_ros` & the `spice_selection_gui` packages with:
 ```
 catkin build foundation_pose_ros
