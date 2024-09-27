@@ -53,8 +53,9 @@ export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordi
 ```
 ### Venv
 For the packages installed in the above mentioned venv, the venv must be added to the PYTHONPATH with:  
+```
 export PYTHONPATH=$PYTHONPATH:/home/<username>/spice_up/lib/python3.8/site-packages/
-
+```
 To reset the PYTHONPATH to what it was prior to this operation run:
 ```
 export PYTHONPATH=/home/<username>/ros/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3/dist-packages
