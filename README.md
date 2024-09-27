@@ -91,7 +91,8 @@ In `/FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py` edit the `include
 
     ],
 ```
-**Building the extensions succeeded if you see: "Successfully installed common".**
+The `CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/cmake/pybind11 bash build_all_conda.sh` command was succesfull if it results in 
+"Successfully installed common" being displayed in the terminal.
 
 
 5. Switch to the branch feature/realsense  with:
