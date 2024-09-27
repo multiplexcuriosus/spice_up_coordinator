@@ -43,7 +43,7 @@ In `foundation_pose_ros/config/pose_detector.yaml`:
 ## Setup
 
 ### PYTHONPATH 
-In order for the submodules of the idx_finder and the spice_up_coordinator to be available when launch the nodes, the following has to be done:
+In order for the submodules of the idx_finder and the spice_up_coordinator to be available when launching the nodes, do:
 ```
 export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/idx_finder/scripts/  
 export PYTHONPATH=$PYTHONPATH:/home/<username>/ros/catkin_ws/src/spice_up_coordinator/scripts/  
