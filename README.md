@@ -44,9 +44,8 @@ conda create -n foundationpose python=3.9
 conda activate foundationpose
 
 #Install cuda toolkit & runtime: do not install any package with cuda in the name into the conda venv that has a version number not equal to 11.8 !
-
-mamba install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0
-mamba install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0
+conda install nvidia/label/cuda-11.8.0::cuda-toolkit -c nvidia/label/cuda-11.8.0
+conda install nvidia/label/cuda-11.8.0::cuda-runtime -c nvidia/label/cuda-11.8.0
 
 # Install Eigen3 3.4.0 under conda environment
 conda install conda-forge::eigen=3.4.0
