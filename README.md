@@ -22,7 +22,10 @@ This diagram depicts the relation between the spice_up_coordinator and the menti
 The numbers indicate the sequence of the events and the colors the nodes which are either requesting or responding.
 The activity indicated at one end of an arrow always stems from the node at the other end of the arrow. 
 
-## PoseProcessor
+## Overview over different coordinate frames
+### A-frame
+![image](https://github.com/user-attachments/assets/4d1d1942-5489-45e9-80bf-d2d06af245d4)
+
 The poseProcessor constructs the E-frame, the four grasp-poses and the two dropoff-poses.
 ### E-Frame
 There are four possible orientations of the CAD model of the wide shelf which are equally likely to be found by foundationpose's pose estimate.
