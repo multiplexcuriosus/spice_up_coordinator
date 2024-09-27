@@ -71,12 +71,14 @@ CMAKE_PREFIX_PATH=$CONDA_PREFIX/lib/python3.9/site-packages/pybind11/share/cmake
  ```
 
 Executing the last line will most likely cause errors. To remedy them do the following:  
+
 Error: `cannot find -lcudart: No such file or directory`  
 Solution:  
 ```
 mkdir /home/<username>/miniforge3/envs/foundationpose/lib64
 cp /home/<username>/miniforge3/envs/foundationpose/lib/libcudart.* /home/<username>/miniforge3/envs/foundationpose/lib64 
 ```
+
 Error:`RuntimeError: Error compiling objects for extension`  
 Solution: 
 In `/FoundationPose/foundation_pose/bundlesdf/mycuda/setup.py` edit the `include_dirs` as follows:
