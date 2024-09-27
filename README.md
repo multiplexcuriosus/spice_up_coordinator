@@ -98,8 +98,9 @@ pip install -r requirements.txt
 
 ## Configuration
 In `idx_finder/config/index_finder.yaml`: Set `index_finder/HOME`  
-In `foundation_pose_ros/config/pose_detector.yaml`: 
-* Set `spice_up_coordinator/mesh_file`
+In `spice_up_coordinator/config/spice_up_coordinator.yaml`: 
+* Set `spice_up_coordinator/in_simulation_mode`
+* Set `spice_up_coordinator/mesh_file_path`
 * Set `spice_up_coordinator/username`
 
 ## Setup
